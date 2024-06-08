@@ -1,3 +1,4 @@
 from django.contrib import admin
+from apps.profesional_salud.models import profesional_salud
 
-# Register your models here.
+admin.site.register(profesional_salud)
