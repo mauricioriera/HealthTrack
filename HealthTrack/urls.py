@@ -18,13 +18,13 @@ import django.contrib.auth
 from django.contrib import admin
 
 from django.urls import path, include
-from HealthTrack.views import logout, inicio
+from HealthTrack.views import logout, inicio, CustomLoginView
 
 urlpatterns = [
     path('admin/', admin.site.urls, name='admin'),
     path('', inicio, name='inicio'),
     path('centro/',include('apps.centro_medico.urls'), name='centro'),
-    path('accounts/', include('django.contrib.auth.urls')),
+    path('accounts/', CustomLoginView.as_view(), name= 'login'),
     path('logout/', logout, name='logout'),
     path('profesional/',include('apps.profesional_salud.urls'), name='profeional'),
 

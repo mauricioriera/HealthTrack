@@ -1,28 +1,25 @@
+from django.contrib.auth import logout as do_logout
 from django.contrib.auth.views import LoginView
 from django.shortcuts import redirect, render
-from django.contrib.auth import logout as do_logout
-
-
 
 
 def inicio(request):
     context = {'foo': 'bar'}
     return render(request, 'index.html', context)
 
+
 def logout(request):
     do_logout(request)
     return redirect('inicio')
 
+
 class CustomLoginView(LoginView):
     def form_valid(self, form):
-        response = super().form_valid(form)
-        user= self.request.user
-        if(user.groups.filter(name="Profesional_Salud").exists()):
+        super().form_valid(form)
+        user = self.request.user
+        if (hasattr(user, 'profesional_salud') and user.profesional_salud.groups.name == "Profesional_Salud"):
             return redirect('inicio')
-        elif(user.groups.filter(name="Paciente").exists()):
+        elif (hasattr(user, 'paciente') and user.paciente.groups.name == "Paciente"):
             return redirect('prueba')
         else:
-            return redirect('admin')
-
-
-
+            return redirect('centro_medico')
