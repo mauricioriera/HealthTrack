@@ -4,11 +4,7 @@ from django.db import models
 
 class profesional_salud(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    groups = models.ForeignKey(Group,null=True, blank=True, on_delete=models.CASCADE)
-    nombre = models.CharField(max_length=100)
-    apellido = models.CharField(max_length=100)
+    groups = models.ForeignKey(Group, null=True, blank=True, on_delete=models.CASCADE)
     dni = models.IntegerField
     domicilio_consultorio = models.CharField(max_length=100)
     especilidad = models.CharField(max_length=100)
-    correo_electronico = models.EmailField(max_length=100)
-    password = models.CharField(max_length=20)

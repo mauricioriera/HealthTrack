@@ -24,8 +24,8 @@ urlpatterns = [
     path('admin/', admin.site.urls, name='admin'),
     path('', inicio, name='inicio'),
     path('centro/',include('apps.centro_medico.urls'), name='centro'),
-    path('accounts/', CustomLoginView.as_view(), name= 'login'),
+    path('accounts/login/', CustomLoginView.as_view(), name= 'login'),
     path('logout/', logout, name='logout'),
-    path('profesional/',include('apps.profesional_salud.urls'), name='profeional'),
-
+    path('profesional/',include('apps.profesional_salud.urls'), name='profesional'),
+    path('informe/',include('apps.informe.urls'), name='informe')
 ]
