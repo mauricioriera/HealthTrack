@@ -1,0 +1,47 @@
+{% extends "base/base.html" %}
+{% block title %}Pagina Acceso al Sistema{% endblock %}
+{% block content %}
+
+<section class="page-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12 text-center">
+                <h3>ACCESO</h3>
+            </div>
+        </div>
+    </div>
+</section>
+<body>
+<section class="login">
+    <form method="post">
+        {% csrf_token %}
+        <br class="row">
+        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 offset-4">
+            <div class="form-group">
+                <label for="email"><i class="fa fa-user"></i> Correo:</label>
+                <input class="form-control" type="text" id="email" name="username"/>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 offset-4">
+            <div class="form-group">
+                <label for="contraseña"><i class="fas fa-lock"></i> Contrase&ntilde;a:</label>
+                <input class="form-control" type="password" id="contraseña" name="password">
+            </div>
+        </div>
+           <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 offset-4">
+            <div class="form-group text-center">
+                {% if form.errors %}
+                    <span class="text-danger">
+                        Usuario y/o contrase&ntilde;a incorrecta!
+                        <br>
+                    </span>
+            {% endif %}
+            <button class="btn btn-success btn-lg boton2" role="button" type="submit"> Ingresar</button>
+            </div>
+        </div>
+        <br>
+        <br>
+    </form>
+</section>
+</body>
+{% endblock %}

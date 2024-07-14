@@ -1,11 +1,11 @@
 from django import forms
 
-from apps.informe.models import informe
+from apps.historial_medico.models import historial_medico
 
 
-class informeForm(forms.ModelForm):
+class historial_medicoForm(forms.ModelForm):
     class Meta:
-        model = informe
+        model = historial_medico
         fields = [
             'paciente',
             'informe'

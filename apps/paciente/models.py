@@ -1,7 +1,10 @@
+from django.contrib.auth.models import User, Group
 from django.db import models
 
 
 class paciente(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    groups = models.ForeignKey(Group, null=True, blank=True, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
     fecha_nacimiento = models.DateField
