@@ -1,0 +1,166 @@
+{% extends "base/base.html" %}
+{% block title %}Registro de Paciente{% endblock %}
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12 text-center">
+                <h3>REGISTRO DE PACIENTE</h3>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="section-appointment">
+    <div class="container">
+        <div class="appointment-form-wrapper clearfix">
+            <h3 class="join-heading">Registro Paciente</h3>
+            <form method='post' class="appoinment-form">
+                {% csrf_token %}
+                <br class="row">
+                <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10 offset-1">
+                    <div class="form-group">
+                        <label>{{form2.username.label}}</label>
+                        <input type="text" name="{{ form2.username.html_name }}"
+                               value="{{ form2.username.value | default_if_none:'' }}"
+                               class="form-control {% if form2.errors.username %} is-invalid {% endif %}" required>
+                        {% for error in form2.username.errors %}
+                        <div class="invalid-feedback">
+                            {{ error }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10 offset-1">
+                    <div class="form-group">
+                        <label>{{form2.first_name.label}}</label>
+                        <input type="text" name="{{ form2.first_name.html_name }}"
+                               value="{{ form2.first_name.value | default_if_none:''}}"
+                               class="form-control {% if form2.errors.first_name %} is-invalid {% endif %}" required>
+                        {% for error in form2.first_name.errors %}
+                        <div class="invalid-feedback">
+                            {{ error }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10 offset-1">
+                    <div class="form-group">
+                        <label>{{form2.last_name.label}}</label>
+                        <input type="text" name="{{ form2.last_name.html_name }}"
+                               value="{{ form2.last_name.value | default_if_none:''}}"
+                               class="form-control {% if form2.errors.last_name %} is-invalid {% endif %}" required>
+                        {% for error in form2.last_name.errors %}
+                        <div class="invalid-feedback">
+                            {{ error }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10 offset-1">
+                    <div class="form-group">
+                        <label>{{form2.password1.label}}</label>
+                        <input type="password" name="{{ form2.password1.html_name }}"
+                               value="{{ form2.password1.value | default_if_none:''}}"
+                               class="form-control {% if form2.errors.password1 %} is-invalid {% endif %}">
+                        {% for error in form2.password1.errors %}
+                        <div class="invalid-feedback">
+                            {{ error }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10 offset-1">
+                    <div class="form-group">
+                        <label>{{form2.password2.label}}</label>
+                        <input type="password" name="{{ form2.password2.html_name }}"
+                               value="{{ form2.password2.value | default_if_none:''}}"
+                               class="form-control {% if form2.errors.password2 %} is-invalid {% endif %}">
+                        {% for error in form2.password2.errors %}
+                        <div class="invalid-feedback">
+                            {{ error }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10 offset-1">
+                    <div class="form-group">
+                        <label>{{form2.email.label}}</label>
+                        <input type="email" id="mail" name="{{ form2.email.html_name }}"
+                               value="{{ form2.email.value | default_if_none:''}}"
+                               class="form-control {% if form2.errors.email %} is-invalid {% endif %}" required>
+                        {% for error in form2.email.errors %}
+                        <div class="invalid-feedback">
+                            {{ error }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10 offset-1">
+                    <div class="form-group">
+                        <label>{{form.fecha_nacimiento.label}}</label>
+                        <input type="date" id="fecha_nacimiento" name="{{ form.fecha_nacimiento.html_name }}"
+                               value="{{ form.fecha_nacimiento.value | default_if_none:''}}"
+                               class="form-control {% if form.errors.fecha_nacimiento %} is-invalid {% endif %}"
+                               required>
+                        {% for error in form.fecha_nacimiento.errors %}
+                        <div class="invalid-feedback">
+                            {{ error }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10 offset-1">
+                    <div class="form-group">
+                        <label>{{form.dni.label}}</label>
+                        <input type="number" name="{{ form.dni.html_name }}"
+                               value="{{ form.dni.value | default_if_none:''}}"
+                               class="form-control {% if form.errors.dni %} is-invalid {% endif %}">
+                        {% for error in form.dni.errors %}
+                        <div class="invalid-feedback">
+                            {{ error }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10 offset-1">
+                        <div class="form-group">
+                            <label>{{form.sexo.label}}</label>
+                            {{form.sexo}}
+                        </div>
+                    </div>
+                    <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10 offset-1">
+                        <div class="form-group">
+                            <label>{{form.direccion.label}}</label>
+                            <input type="text" name="{{ form.direccion.html_name }}"
+                                   value="{{ form.direccion.value | default_if_none:''}}"
+                                   class="form-control {% if form.errors.direccion %} is-invalid {% endif %}" required>
+                            {% for error in form.direccion.errors %}
+                            <div class="invalid-feedback">
+                                {{ error }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10 offset-1">
+                        <div class="form-group">
+                            <label>{{form.telefono.label}}</label>
+                            <input type="text" name="{{ form.telefono.html_name }}"
+                                   value="{{ form.telefono.value | default_if_none:''}}"
+                                   class="form-control {% if form.errors.telefono %} is-invalid {% endif %}">
+                            {% for error in form.telefono.errors %}
+                            <div class="invalid-feedback">
+                                {{ error }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="group-send col-lg-6 col-md-6 col-sm-6 col-xs-6 offset-1">
+                        <div class="from-group">
+                            <button class="btn-submit" type="submit" role="button">Registrar</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

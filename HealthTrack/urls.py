@@ -27,5 +27,7 @@ urlpatterns = [
     path('accounts/login/', CustomLoginView.as_view(), name= 'login'),
     path('logout/', logout, name='logout'),
     path('profesional/',include('apps.profesional_salud.urls'), name='profesional'),
-    path('informe/',include('apps.informe.urls'), name='informe')
+    path('informe/',include('apps.informe.urls'), name='informe'),
+    path('paciente/',include('apps.paciente.urls'), name='paciente'),
+
 ]

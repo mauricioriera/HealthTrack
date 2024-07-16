@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+
+
 from apps.paciente.models import paciente
 
 
@@ -11,23 +13,23 @@ class pacienteForm(forms.ModelForm):
             'fecha_nacimiento',
             'dni',
             'sexo',
-            'domicilio',
+            'direccion',
             'telefono',
         ]
         labels = {
             'fecha_nacimiento': 'Fecha de Nacimiento',
             'dni': 'DNI',
             'sexo': 'Sexo',
-            'domicilio': 'dirección',
+            'direccion': 'Dirección',
             'telefono': 'Teléfono',
         }
         widgets = {
 
-            'fecha_nacimiento': forms.DateField(attrs={'type': 'date'}),
-            'dni': forms.NumberInput(attrs={'class': 'form-control'}),
+            'fecha_nacimiento': forms.DateInput(attrs={'type':'date'}),
+            'dni': forms.TextInput(attrs={'class': 'form-control'}),
             'sexo': forms.Select(attrs={'class': 'form-control'}),
-            'domicilio': forms.TextImput(attrs={'class': 'form-control'}),
-            'telfono': forms.NumberInput(attrs={'class': 'form-control'}),
+            'direccion': forms.TextInput(attrs={'class': 'form-control'}),
+            'telefono': forms.NumberInput(attrs={'class': 'form-control'}),
         }
 class RegistroForm(UserCreationForm):
     class Meta:
