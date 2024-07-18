@@ -1,9 +1,15 @@
 from django import forms
+from django.contrib.auth.models import User
 
 from apps.informe.models import informe
+from apps.paciente.models import paciente
+from apps.profesional_salud.models import profesional_salud
 
 
 class informeForm(forms.ModelForm):
+    paciente= forms.ModelChoiceField(queryset=paciente.objects.all())
+    profesional: forms.ModelChoiceField(queryset=profesional_salud.objects.all())
+    archivo: forms.FileField()
     class Meta:
         model = informe
         fields = [
@@ -12,12 +18,8 @@ class informeForm(forms.ModelForm):
             'archivo',
         ]
         labels = {
-            'paciente': 'Paciente',
+            'paciente': 'Selecciona un paciente',
             'profesional_salud': 'Medico',
             'archivo': 'Cargar Informe',
         }
-        widgets={
-            'paciente': forms.Select,
-            'profesional_salud': forms.Select(attrs={'class':'form-control'}),
-            'archivo': forms.FileField(required=True),
-        }
+

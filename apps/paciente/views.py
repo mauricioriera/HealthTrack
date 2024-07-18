@@ -21,7 +21,7 @@ class PacienteCrear(CreateView):
             context['form'] = self.form_class(self.request.GET)
         if 'form2' not in context:
             context['form2'] = self.second_form_class(self.request.GET)
-            return context
+        return context
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object

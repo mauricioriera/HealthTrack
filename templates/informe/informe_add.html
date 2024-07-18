@@ -1,31 +1,19 @@
 {% extends "base/base.html" %}
-{% block title %}Registro Donaciones{% endblock %}
+{% block title %}Informes {% endblock %}
 {% block content %}
-        <section class="page-header">
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm-12 text-center">
-                      <h3>Carga de Informes</h3>
-                    </div>
-                </div>
-            </div>
-        </section>
-<section>
-     <div class="container">
-         <div class="appointment-form-wrapper clearfix">
-             <h3 class="join-heading">Carga informe</h3>
-             <form method='post' class="appoinment-form">
-                 {% csrf_token %}
-                 <br class="row">
-                    <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10 offset-1">
-                        <div class="form-group">
-                            <label>{{form.pacinte.label}}</label>
-                            <input  value="{{paciente.id}}" >
-                        </div>
-                    </div>
-                 </div>
-             </form>
-         </div>
-     </div>
-</section>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subir Archivo</title>
+</head>
+<body>
+    <h1>Subir Archivo</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Subir</button>
+    </form>
+</body>
+</html>
 {% endblock %}
