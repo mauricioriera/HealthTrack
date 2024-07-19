@@ -1,6 +1,8 @@
 from django.urls import path
-from apps.informe.views import subir_archivo
+from apps.informe.views import subir_archivo,mostrar_archivo,lista_archivos
 
 urlpatterns = [
     path('subir_archivo/', subir_archivo, name='subir_archivo'),
+    path('mostrar/<int:archivo_id>/', mostrar_archivo, name='mostrar_archivo'),
+    path('lista/', lista_archivos, name='lista_archivos'),
  ]

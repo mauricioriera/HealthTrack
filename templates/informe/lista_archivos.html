@@ -1,0 +1,16 @@
+<html>
+<head>
+    <title>Lista de Archivos</title>
+</head>
+<body>
+    <h1>Lista de Archivos</h1>
+    <ul>
+        {% for archivo in archivos %}
+            <li>
+                {{ archivo.paciente.user}}
+                <a href="{% url 'mostrar_archivo' archivo.id %}">{{ archivo.profesional_salud.especilidad}}</a>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

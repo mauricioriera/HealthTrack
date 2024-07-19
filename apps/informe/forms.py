@@ -8,8 +8,8 @@ from apps.profesional_salud.models import profesional_salud
 
 class informeForm(forms.ModelForm):
     paciente= forms.ModelChoiceField(queryset=paciente.objects.all())
-    profesional: forms.ModelChoiceField(queryset=profesional_salud.objects.all())
-    archivo: forms.FileField()
+    profesional_salud= forms.ModelChoiceField(queryset=profesional_salud.objects.all())
+    archivo= forms.FileField()
     class Meta:
         model = informe
         fields = [
@@ -22,4 +22,3 @@ class informeForm(forms.ModelForm):
             'profesional_salud': 'Medico',
             'archivo': 'Cargar Informe',
         }
-
