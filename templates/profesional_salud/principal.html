@@ -1,0 +1,30 @@
+{% extends "base/base.html" %}
+{% block title %}Pagina Inicio{% endblock %}
+{% block content %}
+{% load static %}
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Pagina Principal</title>
+</head>
+<body>
+    <h3>Bienvenido {{ user.username}}</h3>
+     <section class="section-appointment">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                    <div class="appointment-form-wrapper text-center clearfix">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                {% if request.user.is_authenticated and request.user.profesional_salud.groups.name == "Profesional_Salud" %}
+                                <a type="button" class="btn btn-info" href="{% url 'subir_informe' user.profesional_salud.id %}" role="button">Cargar informe</a>
+                                {% endif %}
+                                <a button type="button" class="btn btn-info" href="{% url 'lista_archivos' %}">Ver informe</button></a>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
+{% endblock %}

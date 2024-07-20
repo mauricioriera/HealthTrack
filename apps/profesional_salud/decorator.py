@@ -1,0 +1,13 @@
+from django.contrib.auth.decorators import user_passes_test
+from django.core.exceptions import PermissionDenied
+
+def profesional_salud_required():
+    def in_group(user):
+        if user.is_authenticated:
+            if (hasattr(user, 'profesional_salud') and user.profesional_salud.groups.name == "Profesional_Salud"):
+                return True
+            else:
+                raise PermissionDenied
+        return False
+
+    return user_passes_test(in_group)

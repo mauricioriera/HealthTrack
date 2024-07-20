@@ -11,6 +11,7 @@
     <h1>Subir Archivo</h1>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
+        <h4>Médico: {{user.username}}</h4>
         {{ form.as_p }}
         <button type="submit">Subir</button>
     </form>

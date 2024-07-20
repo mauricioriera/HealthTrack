@@ -1,16 +1,22 @@
 import magic
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
+
 from apps.informe.forms import informeForm
 from apps.informe.models import informe
+from apps.profesional_salud.decorator import profesional_salud_required
+from apps.profesional_salud.models import profesional_salud
 
 
-def subir_archivo(request):
+@profesional_salud_required()
+@login_required
+def subir_archivo(request,profesional_id):
     if request.method == 'POST':
         form = informeForm(request.POST, request.FILES)
         if form.is_valid():
             paciente = form.cleaned_data['paciente']
-            profesional_salud = form.cleaned_data['profesional_salud']
+            profesional = profesional_salud.objects.get(id=profesional_id)
             archivo = form.cleaned_data['archivo']
 
             # Lee el archivo y conviértelo a binario
@@ -19,7 +25,7 @@ def subir_archivo(request):
             # Guarda el archivo en la base de datos
             informe.objects.create(
                 paciente=paciente,
-                profesional_salud=profesional_salud,
+                profesional_salud=profesional,
                 archivo=archivo_binario,
             )
             return redirect('inicio')  # Redirige a una página de lista o de éxito
@@ -28,10 +34,10 @@ def subir_archivo(request):
     return render(request, 'informe/informe_add.html', {'form': form})
 
 
-
 def lista_archivos(request):
     archivos = informe.objects.all()
     return render(request, 'informe/lista_archivos.html', {'archivos': archivos})
+
 
 def mostrar_archivo(request, archivo_id):
     archivo = get_object_or_404(informe, id=archivo_id)
