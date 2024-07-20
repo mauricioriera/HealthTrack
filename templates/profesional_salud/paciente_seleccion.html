@@ -1,0 +1,23 @@
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Seleccionar Usuario</title>
+</head>
+<body>
+    <h1>Seleccionar Usuario</h1>
+    {% if paciente %}
+        <form id="userForm" method="post" action="{% url 'procesar' %}">
+            {% csrf_token %}
+            <label for="userSelect">Selecciona un usuario:</label>
+            <select id="userSelect" name="user_id">
+                {% for pacient in paciente %}
+                    <option value="{{ pacient.user.id }}">{{ pacient.user.username }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Enviar</button>
+        </form>
+    {% else %}
+        <p>No hay usuarios disponibles.</p>
+    {% endif %}
+</body>
+</html>

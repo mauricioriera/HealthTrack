@@ -36,8 +36,8 @@ def subir_archivo(request,profesional_id):
     return render(request, 'informe/informe_add.html', {'form': form})
 
 
-def lista_archivos(request):
-    archivos = informe.objects.all()
+def lista_archivos(request, paciente_id):
+    archivos = informe.objects.filter(paciente_id=paciente_id)
     return render(request, 'informe/lista_archivos.html', {'archivos': archivos})
 
 

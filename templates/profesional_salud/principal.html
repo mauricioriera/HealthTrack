@@ -17,8 +17,10 @@
                             <div class="col-md-12 col-sm-12 col-xs-12">
                                 {% if request.user.is_authenticated and request.user.profesional_salud.groups.name == "Profesional_Salud" %}
                                 <a type="button" class="btn btn-info" href="{% url 'subir_informe' user.profesional_salud.id %}" role="button">Cargar informe</a>
+                                <a type="button" class="btn btn-info" href="{% url 'seleccionar' %}" role="button">Seleccionar Paciente</a>
+                                {% else %}
+                                <a button type="button" class="btn btn-info" href="{% url 'lista_archivos' user.paciente.id %}">Ver informe</button></a>
                                 {% endif %}
-                                <a button type="button" class="btn btn-info" href="{% url 'lista_archivos' %}">Ver informe</button></a>
                             </div>
                     </div>
                 </div>
