@@ -8,7 +8,7 @@
         {% for archivo in archivos %}
             <li>
                 {{ archivo.paciente.user}}
-                <a href="{% url 'mostrar_archivo' archivo.id %}" target="file_viewer">{{ archivo.profesional_salud.especilidad}}</a>
+                <a href="{% url 'mostrar_archivo' archivo.id %}" target="file_viewer">{{ archivo.titulo}}</a>
             </li>
         {% endfor %}
     </ul>

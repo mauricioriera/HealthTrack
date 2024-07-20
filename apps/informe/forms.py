@@ -9,13 +9,16 @@ from apps.profesional_salud.models import profesional_salud
 class informeForm(forms.ModelForm):
     paciente= forms.ModelChoiceField(queryset=paciente.objects.all())
     archivo= forms.FileField()
+    titulo= forms.CharField()
     class Meta:
         model = informe
         fields = [
             'paciente',
+            'titulo',
             'archivo',
         ]
         labels = {
-            'paciente': 'Selecciona un paciente',
-            'archivo': 'Cargar Informe',
+            'paciente':'Paciente',
+            'titulo':'Título del informe',
+            'archivo':'Informe',
         }

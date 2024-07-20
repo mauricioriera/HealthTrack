@@ -7,4 +7,5 @@ from apps.profesional_salud.models import profesional_salud
 class informe(models.Model):
     paciente = models.ForeignKey(paciente, on_delete=models.CASCADE)
     profesional_salud = models.ForeignKey(profesional_salud, on_delete=models.CASCADE)
+    titulo = models.CharField(max_length=200)
     archivo = models.BinaryField(editable=True)

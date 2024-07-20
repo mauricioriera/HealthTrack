@@ -18,6 +18,7 @@ def subir_archivo(request,profesional_id):
             paciente = form.cleaned_data['paciente']
             profesional = profesional_salud.objects.get(id=profesional_id)
             archivo = form.cleaned_data['archivo']
+            titulo = form.cleaned_data['titulo']
 
             # Lee el archivo y conviértelo a binario
             archivo_binario = archivo.read()
@@ -26,6 +27,7 @@ def subir_archivo(request,profesional_id):
             informe.objects.create(
                 paciente=paciente,
                 profesional_salud=profesional,
+                titulo=titulo,
                 archivo=archivo_binario,
             )
             return redirect('inicio')  # Redirige a una página de lista o de éxito
