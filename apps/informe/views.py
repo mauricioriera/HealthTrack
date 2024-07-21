@@ -30,7 +30,7 @@ def subir_archivo(request,profesional_id):
                 titulo=titulo,
                 archivo=archivo_binario,
             )
-            return redirect('inicio')  # Redirige a una página de lista o de éxito
+            return redirect('principal')  # Redirige a una página de lista o de éxito
     else:
         form = informeForm()
     return render(request, 'informe/informe_add.html', {'form': form})
