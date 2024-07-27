@@ -39,3 +39,7 @@ class PacienteCrear(CreateView):
         else:
             messages.add_message(request, messages.ERROR, 'Su perfil no se pudo crear')
             return render(request, self.template_name, {'form': form, 'form2': form2})
+
+def aceptar_solicitud(request,user_id, paciente_id):
+    context={'user_id':user_id, 'paciente_id':paciente_id}
+    return render(request,'paciente/aceptar_solicitud.html', context)

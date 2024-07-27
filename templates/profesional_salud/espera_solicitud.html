@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Solicitud Enviada</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="jumbotron mt-5">
+            <h1 class="display-4">Solicitud Enviada</h1>
+            <p class="lead">Se ha enviado una solicitud de acceso a los archivos del paciente <strong>{{ paciente.user.username }}</strong> a su correo electrónico.</p>
+            <hr class="my-4">
+            <p>Por favor, espera a que el paciente apruebe tu solicitud.</p>
+            <a class="btn btn-primary btn-lg" href="{% url 'principal' %}" role="button">Volver pagina principal</a>
+        </div>
+    </div>
+</body>
+</html>

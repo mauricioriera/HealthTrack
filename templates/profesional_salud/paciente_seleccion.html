@@ -4,7 +4,7 @@
     <title>Seleccionar Usuario</title>
 </head>
 <body>
-    <h1>Seleccionar Usuario</h1>
+    <h1>Seleccionar Paciente</h1>
     {% if paciente %}
         <form id="userForm" method="post" action="{% url 'procesar' %}">
             {% csrf_token %}
@@ -14,7 +14,7 @@
                     <option value="{{ pacient.id }}">{{ pacient.user.username }}</option>
                 {% endfor %}
             </select>
-            <button type="submit">Enviar</button>
+            <button type="submit">Enviar Solicitud</button>
         </form>
     {% else %}
         <p>No hay usuarios disponibles.</p>

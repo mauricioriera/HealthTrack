@@ -37,6 +37,8 @@ def subir_archivo(request,profesional_id):
 
 
 def lista_archivos(request, paciente_id):
+    if request.session.get('acceso_permitido') != str(paciente_id):
+        return HttpResponse('Acceso denegado.')
     archivos = informe.objects.filter(paciente_id=paciente_id)
     return render(request, 'informe/lista_archivos.html', {'archivos': archivos})
 

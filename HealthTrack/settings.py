@@ -139,3 +139,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL ='inicio'
 LOGOUT_REDIRECT_URL ='inicio'
 X_FRAME_OPTIONS = 'SAMEORIGIN'
+SITE_URL = 'http://127.0.0.1:8000'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.office365.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_HOST_USER = 'piratapruebatesis@hotmail.com'
+EMAIL_HOST_PASSWORD = 'Pirata190387'  # O una contraseña de aplicación si tienes 2FA activado
+DEFAULT_FROM_EMAIL = 'piratapruebatesis@hotmail.com'
