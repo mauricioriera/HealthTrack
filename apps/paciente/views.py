@@ -1,8 +1,11 @@
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from django.contrib.auth.models import Group
+
+from apps.paciente.decorator import paciente_required
 from apps.paciente.forms import pacienteForm, RegistroForm
 from apps.paciente.models import paciente
 from django.contrib import messages
@@ -40,6 +43,8 @@ class PacienteCrear(CreateView):
             messages.add_message(request, messages.ERROR, 'Su perfil no se pudo crear')
             return render(request, self.template_name, {'form': form, 'form2': form2})
 
+@paciente_required()
+@login_required
 def aceptar_solicitud(request,user_id, paciente_id):
     context={'user_id':user_id, 'paciente_id':paciente_id}
     return render(request,'paciente/aceptar_solicitud.html', context)

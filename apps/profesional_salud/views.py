@@ -7,6 +7,7 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 
+from apps.paciente.decorator import paciente_required
 from apps.paciente.models import paciente
 from apps.profesional_salud.decorator import profesional_salud_required
 
@@ -14,6 +15,7 @@ from apps.profesional_salud.decorator import profesional_salud_required
 @login_required
 def prueba(request):
     return render(request, 'test.html', {})
+
 
 
 @login_required
@@ -32,13 +34,17 @@ def seleccion_paciente(request):
     return render(request, 'profesional_salud/paciente_seleccion.html', {'paciente': pacient})
 
 
+@profesional_salud_required()
+@login_required
 def procesar_paciente(request):
     if request.method == 'POST':
         paciente_id = request.POST.get('user_id')
         return redirect(reverse('solicitar_acceso', args=[paciente_id]))
     return HttpResponse("Método no permitido", status=405)
 
-# TODO: proteger solo acceda medico
+
+@profesional_salud_required()
+@login_required
 def solicita_acceso(request, paciente_id):
     paciente_resultado = get_object_or_404(paciente, id=paciente_id)
     id_profesional = request.user.id
@@ -60,7 +66,7 @@ def enviar_mail_paciente(paciente_email, link_aceptar, username):
 def permitir_acceso(request, user_id, paciente_id):
     profesional = get_object_or_404(User, id=user_id)
     link = generar_magic_link(paciente_id)
-    enviar_magic_link(profesional.email,link)
+    enviar_magic_link(profesional.email, link)
     return render(request, 'profesional_salud/principal.html')
 
 
@@ -79,6 +85,7 @@ def enviar_magic_link(profesional_email, link):
         [profesional_email],
         fail_silently=False,
     )
+
 
 def verificar_magic_link(request, token):
     signer = TimestampSigner()
