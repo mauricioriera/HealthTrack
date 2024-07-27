@@ -14,3 +14,8 @@ class paciente(models.Model):
     sexo = models.CharField(max_length=1, choices=SEXO, default='M')
     direccion = models.CharField(max_length=100)
     telefono = models.CharField(max_length=15)
+
+    def __str__(self):
+        return f"{self.user.first_name} {self.user.last_name}"
+
+

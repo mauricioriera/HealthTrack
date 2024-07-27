@@ -52,7 +52,7 @@ def lista_archivos_profesional(request,token):
     except SignatureExpired:
         return render(request, 'profesional_salud/error_expiracion.html')
     except BadSignature:
-        return HttpResponseBadRequest('El enlace no es válido.')
+        return render(request, 'profesional_salud/error_enlace.html')
 
     archivos = informe.objects.filter(paciente_id=paciente_id)
     return render(request, 'informe/lista_archivos.html', {'archivos': archivos})
