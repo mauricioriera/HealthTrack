@@ -48,9 +48,9 @@ def lista_archivos_paciente(request, paciente_id):
 def lista_archivos_profesional(request,token):
     signer = TimestampSigner()
     try:
-        paciente_id = signer.unsign(token, max_age=180)
+        paciente_id = signer.unsign(token, max_age=90)
     except SignatureExpired:
-        return HttpResponseBadRequest('El enlace ha expirado.')
+        return render(request, 'profesional_salud/error_expiracion.html')
     except BadSignature:
         return HttpResponseBadRequest('El enlace no es válido.')
 

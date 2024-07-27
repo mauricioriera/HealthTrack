@@ -1,0 +1,17 @@
+{% extends "base/base.html" %}
+{% block title %}Pagina Inicio{% endblock %}
+{% block content %}
+{% load static %}
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Pagina Principal</title>
+</head>
+<body>
+    <h3 style="color:red;">El Token ha Expirado</h3>
+     <section class="section-appointment">
+         <a class="btn btn-primary btn-lg" href="{% url 'principal' %}" role="button">Volver pagina principal</a>
+    </section>
+</body>
+</html>
+{% endblock %}
