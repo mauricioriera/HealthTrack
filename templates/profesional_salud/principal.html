@@ -19,7 +19,7 @@
                                 <a type="button" class="btn btn-info" href="{% url 'subir_informe' user.profesional_salud.id %}" role="button">Cargar informe</a>
                                 <a type="button" class="btn btn-success" href="{% url 'seleccionar' %}" role="button">Seleccionar Paciente</a>
                                 {% else %}
-                                <a type="button" class="btn btn-info" href="{% url 'lista_archivos' user.paciente.id %}">Ver informe</a>
+                                <a type="button" class="btn btn-info" href="{% url 'lista_archivos_paciente' user.paciente.id %}">Ver informe</a>
                                 {% endif %}
                             </div>
                     </div>

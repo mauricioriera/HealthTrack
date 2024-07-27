@@ -73,29 +73,17 @@ def permitir_acceso(request, user_id, paciente_id):
 def generar_magic_link(paciente_id):
     signer = TimestampSigner()
     token = signer.sign(paciente_id)
-    link = f"{settings.SITE_URL}/profesional/acceso/{token}/"
+    link = f"{settings.SITE_URL}/informe/lista/profesional/{token}/"
     return link
 
 
 def enviar_magic_link(profesional_email, link):
     send_mail(
         'Solicitud de acceso a sus archivos',
-        f'El usurio le dio acceso a sus archivos. Por favor, haga clic en el siguiente enlace para verlos: {link}',
+        f'El usuario le dio acceso a sus archivos. Por favor, haga clic en el siguiente enlace para verlos: {link}',
         settings.EMAIL_HOST_USER,
         [profesional_email],
         fail_silently=False,
     )
 
 
-def verificar_magic_link(request, token):
-    signer = TimestampSigner()
-    try:
-        paciente_id = signer.unsign(token, max_age=180)
-    except SignatureExpired:
-        return HttpResponseBadRequest('El enlace ha expirado.')
-    except BadSignature:
-        return HttpResponseBadRequest('El enlace no es válido.')
-
-    # Guardar en la sesión que el acceso está permitido
-    request.session['acceso_permitido'] = paciente_id
-    return redirect('lista_archivos', paciente_id=paciente_id)
