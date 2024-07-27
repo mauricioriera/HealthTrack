@@ -20,7 +20,7 @@
                     <div class="appointment-form-wrapper text-center clearfix">
                             <div class="col-md-12 col-sm-12 col-xs-12">
                                 {% if request.user.is_authenticated %}
-                                <a type="button" class="btn btn-danger" href="{% url 'inicio' %}" role="button">Denegar Acceso</a>
+                                <a type="button" class="btn btn-danger" href="{% url 'denegar_acceso' user_id paciente_id %}" role="button">Denegar Acceso</a>
                                 <a type="button" class="btn btn-success" href="{% url 'permitir_acceso' user_id paciente_id %}">Permitir acceso</a>
                                 {% endif %}
                             </div>

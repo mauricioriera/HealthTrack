@@ -2,12 +2,11 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from django.core.signing import TimestampSigner, SignatureExpired, BadSignature
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.core.signing import TimestampSigner
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 
-from apps.paciente.decorator import paciente_required
 from apps.paciente.models import paciente
 from apps.profesional_salud.decorator import profesional_salud_required
 
@@ -15,7 +14,6 @@ from apps.profesional_salud.decorator import profesional_salud_required
 @login_required
 def prueba(request):
     return render(request, 'test.html', {})
-
 
 
 @login_required
@@ -87,3 +85,14 @@ def enviar_magic_link(profesional_email, link):
     )
 
 
+def eviar_mail_denegado(request,user_id,paciente_id ):
+    paciente_encontrado = get_object_or_404(paciente, id=paciente_id)
+    profesional = get_object_or_404(User, id=user_id)
+    send_mail(
+        'Solicitud de acceso a sus archivos',
+        f'El usuario {paciente_encontrado.user.first_name}.{paciente_encontrado.user.last_name} no permitió acceso a sus archivos.',
+        settings.EMAIL_HOST_USER,
+        [profesional.email],
+        fail_silently=False,
+    )
+    return render(request, 'profesional_salud/principal.html')

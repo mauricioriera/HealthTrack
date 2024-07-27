@@ -68,5 +68,5 @@ def mostrar_archivo(request, archivo_id):
     content_type = mime.from_buffer(archivo.archivo)
 
     response = HttpResponse(archivo.archivo, content_type=content_type)
-    response['Content-Disposition'] = f'inline; filename="pepe"'
+    response['Content-Disposition'] = f'inline; filename="informe"'
     return response
