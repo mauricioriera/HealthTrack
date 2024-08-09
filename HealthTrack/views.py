@@ -23,3 +23,6 @@ class CustomLoginView(LoginView):
             return redirect(('principal'))
         else:
             return redirect('centro_medico')
+
+def custom_permission_denied_view(request, exception):
+    return render(request, '403.html', {}, status=403)

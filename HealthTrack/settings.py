@@ -11,9 +11,11 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
 from pathlib import Path
-
+from cryptography.hazmat.primitives import hashes
 from django.urls import reverse_lazy
+from dotenv import load_dotenv
 
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -149,3 +151,9 @@ EMAIL_USE_SSL = False
 EMAIL_HOST_USER = 'piratapruebatesis@hotmail.com'
 EMAIL_HOST_PASSWORD = 'Pirata190387'  # O una contraseña de aplicación si tienes 2FA activado
 DEFAULT_FROM_EMAIL = 'piratapruebatesis@hotmail.com'
+
+#Propiedades Criptographics
+
+CRYPTOGRAPHY_DIGEST= hashes.SHA256()
+CRYPTOGRAPHY_KEY=os.getenv('CRYPTOGRAPHY_KEY')
+CRYPTOGRAPHY_SALT=os.getenv('CRYPTOGRAPHY_SALT')

@@ -16,9 +16,10 @@ Including another URLconf
 """
 import django.contrib.auth
 from django.contrib import admin
-
 from django.urls import path, include
-from HealthTrack.views import logout, inicio, CustomLoginView
+from HealthTrack.views import logout, inicio, CustomLoginView,custom_permission_denied_view
+
+handler403 = custom_permission_denied_view
 
 urlpatterns = [
     path('admin/', admin.site.urls, name='admin'),
