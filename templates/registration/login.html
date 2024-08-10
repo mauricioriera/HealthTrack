@@ -1,49 +1,38 @@
-{% extends "base/base.html" %}
-{% block title %}Pagina Acceso al Sistema{% endblock %}
-{% block content %}
+{% extends 'base/base.html' %}
 
-<section class="page-header">
-    <div class="container">
-        <div class="row">
-            <div class="col-sm-12 text-center">
-                <h3>ACCESO</h3>
+{% block title %}Iniciar Sesión{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2 class="text-center mb-4">Iniciar Sesión</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="username" class="form-label">Nombre de Usuario</label>
+                <input type="text" class="form-control" id="username" name="username" required>
             </div>
-        </div>
-    </div>
-</section>
-<body>
-<section class="login">
-    <form method="post">
-        {% csrf_token %}
-        <br class="row">
-        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 offset-4">
-            <div class="form-group">
-                <label for="email"><i class="fa fa-user"></i> Correo:</label>
-                <input class="form-control" type="text" id="email" name="username"/>
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <input type="password" class="form-control" id="password" name="password" required>
             </div>
-        </div>
-        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 offset-4">
-            <div class="form-group">
-                <label for="contraseña"><i class="fas fa-lock"></i> Contrase&ntilde;a:</label>
-                <input class="form-control" type="password" id="contraseña" name="password">
-            </div>
-        </div>
-           <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 offset-4">
             <div class="form-group text-center">
-                {% if form.errors %}
+             {% if form.errors %}
                     <span class="text-danger">
-                        Usuario y/o contrase&ntilde;a incorrecta!
+                        Usuario y/o Contrase&ntilde;a Incorrecta!
+                        <br>
                         <br>
                     </span>
             {% endif %}
-            <button class="btn btn-success btn-lg boton2" role="button" type="submit"> Ingresar</button>
             </div>
-            <br>
-               <center><h4><a href="{% url 'crear_paciente' %}">Registrarse</a></h4></center>
+            <button type="submit" class="btn btn-primary w-100">Iniciar Sesión</button>
+        </form>
+        <div class="mt-3 text-center">
+            <a href="{% url 'crear_paciente' %}">Registrarse</a>
         </div>
-        <br>
-        <br>
-    </form>
-</section>
-</body>
+    </div>
+</div>
 {% endblock %}
+
+
+
