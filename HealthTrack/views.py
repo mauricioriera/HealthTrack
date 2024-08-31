@@ -17,12 +17,12 @@ class CustomLoginView(LoginView):
     def form_valid(self, form):
         super().form_valid(form)
         user = self.request.user
-        if (hasattr(user, 'profesional_salud') and user.profesional_salud.groups.name == "Profesional_Salud"):
+        if (hasattr(user, 'profesionalsalud') and user.profesionalsalud.groups.name == "Profesional_Salud"):
             return redirect('principal')
         elif (hasattr(user, 'paciente') and user.paciente.groups.name == "Paciente"):
-            return redirect(('principal'))
+            return redirect('lista_archivos_paciente',user.paciente.id)
         else:
-            return redirect('centro_medico')
+            return redirect('logout')
 
 def custom_permission_denied_view(request, exception):
     return render(request, '403.html', {}, status=403)

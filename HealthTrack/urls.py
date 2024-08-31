@@ -24,7 +24,6 @@ handler403 = custom_permission_denied_view
 urlpatterns = [
     path('admin/', admin.site.urls, name='admin'),
     path('', inicio, name='inicio'),
-    path('centro/',include('apps.centro_medico.urls'), name='centro'),
     path('accounts/login/', CustomLoginView.as_view(), name= 'login'),
     path('logout/', logout, name='logout'),
     path('profesional/',include('apps.profesional_salud.urls'), name='profesional'),

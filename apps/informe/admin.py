@@ -1,4 +1,4 @@
 from django.contrib import admin
-from apps.informe.models import informe
+from apps.informe.models import Informe
 
-admin.site.register(informe)
+admin.site.register(Informe)

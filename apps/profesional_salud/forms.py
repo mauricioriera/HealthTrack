@@ -2,12 +2,12 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from apps.profesional_salud.models import profesional_salud
+from apps.profesional_salud.models import ProfesionalSalud
 
 
-class profesional_saludForm(forms.ModelForm):
+class ProfesionalSaludform(forms.ModelForm):
     class Meta:
-        model = profesional_salud
+        model = ProfesionalSalud
         fields = [
             'dni',
             'domicilio_consultorio',

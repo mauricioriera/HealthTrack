@@ -9,6 +9,7 @@
 
     <!-- Cargar tu propio archivo CSS -->
     <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+    {% block extra_head %}{% endblock %}
 </head>
 <body>
     <header>
@@ -23,14 +24,24 @@
                         <li class="nav-item">
                             <a class="nav-link" href="/">Inicio</a>
                         </li>
+                        {% if request.user.is_authenticated and request.user.profesionalsalud.groups.name == "Profesional_Salud" %}
                         <li class="nav-item">
-                            <a class="nav-link" href="/about">Acerca de</a>
+                            <a class="nav-link" href="{% url 'principal' %}">Lista Pacientes</a>
                         </li>
+                        {% endif %}
+                        {% if request.user.is_authenticated and request.user.paciente.groups.name == "Paciente" %}
                         <li class="nav-item">
-                            <a class="nav-link" href="/contact">Contacto</a>
+                            <a class="nav-link" href="{% url 'lista_archivos_paciente' user.paciente.id %}">Mis Informes</a>
                         </li>
-                        <!-- Agrega más enlaces aquí -->
+                        {% endif %}
                     </ul>
+                         {% if request.user.is_authenticated %}
+                       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}">Cerrar Sesión</a>
+                        </li>
+                    </ul>
+                    {% endif %}
                 </div>
             </div>
         </nav>

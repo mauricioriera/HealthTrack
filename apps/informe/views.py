@@ -1,51 +1,56 @@
 import magic
 from django.contrib.auth.decorators import login_required
 from django.core.signing import TimestampSigner, SignatureExpired, BadSignature
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from apps.informe.forms import informeForm
-from apps.informe.models import informe
-from apps.profesional_salud.decorator import profesional_salud_required
-from apps.profesional_salud.models import profesional_salud
+
+from apps.informe.forms import InformeForm
+from apps.informe.models import Informe
 from apps.paciente.decorator import paciente_required
+from apps.paciente.models import Paciente
+from apps.profesional_salud.decorator import profesional_salud_required
+from apps.profesional_salud.models import ProfesionalSalud
 
 
 @profesional_salud_required()
 @login_required
-def subir_archivo(request,profesional_id):
+def subir_archivo(request, profesional_id, paciente_id):
+    paciente = Paciente.objects.get(id=paciente_id)
     if request.method == 'POST':
-        form = informeForm(request.POST, request.FILES)
+        form = InformeForm(request.POST, request.FILES)
         if form.is_valid():
-            paciente = form.cleaned_data['paciente']
-            profesional = profesional_salud.objects.get(id=profesional_id)
+            profesional = ProfesionalSalud.objects.get(id=profesional_id)
             archivo = form.cleaned_data['archivo']
             titulo = form.cleaned_data['titulo']
+            fecha_informe= form.cleaned_data['fecha_informe']
 
             # Lee el archivo y conviértelo a binario
             archivo_binario = archivo.read()
 
             # Guarda el archivo en la base de datos
-            informe.objects.create(
+            Informe.objects.create(
                 paciente=paciente,
                 profesional_salud=profesional,
                 titulo=titulo,
                 archivo=archivo_binario,
+                fecha_informe=fecha_informe,
             )
             return redirect('principal')  # Redirige a una página de lista o de éxito
     else:
-        form = informeForm()
-    return render(request, 'informe/informe_add.html', {'form': form})
+        form = InformeForm()
+    return render(request, 'informe/informe_add.html', {'form': form, "paciente": paciente})
+
 
 @paciente_required()
 @login_required
 def lista_archivos_paciente(request, paciente_id):
-    archivos = informe.objects.filter(paciente_id=paciente_id)
+    archivos = Informe.objects.filter(paciente_id=paciente_id).order_by('-fecha_informe')
     return render(request, 'informe/lista_archivos.html', {'archivos': archivos})
 
 
 @profesional_salud_required()
 @login_required
-def lista_archivos_profesional(request,token):
+def lista_archivos_profesional(request, token):
     signer = TimestampSigner()
     try:
         paciente_id = signer.unsign(token, max_age=90)
@@ -54,14 +59,12 @@ def lista_archivos_profesional(request,token):
     except BadSignature:
         return render(request, 'profesional_salud/error_enlace.html')
 
-    archivos = informe.objects.filter(paciente_id=paciente_id)
+    archivos = Informe.objects.filter(paciente_id=paciente_id)
     return render(request, 'informe/lista_archivos.html', {'archivos': archivos})
 
 
-
-
 def mostrar_archivo(request, archivo_id):
-    archivo = get_object_or_404(informe, id=archivo_id)
+    archivo = get_object_or_404(Informe, id=archivo_id)
 
     # Usa python-magic para detectar el tipo MIME del archivo
     mime = magic.Magic(mime=True)

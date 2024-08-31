@@ -2,7 +2,7 @@ from django.contrib.auth.models import User, Group
 from django.db import models
 
 
-class paciente(models.Model):
+class Paciente(models.Model):
     SEXO = (
         ('M', 'masculino'),
         ('F', 'femenino'),
@@ -17,5 +17,4 @@ class paciente(models.Model):
 
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"
-
 

@@ -41,14 +41,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Apps propias
-    'apps.centro_medico.apps.CentroMedicoConfig',
-    'apps.guia_paciente.apps.GuiaPacienteConfig',
-    'apps.historial_medico.apps.HistorialMedicoConfig',
     'apps.informe.apps.InformeConfig',
     'apps.paciente.apps.PacienteConfig',
     'apps.profesional_salud.apps.ProfesionalSaludConfig',
-    'apps.turno_centro_medico.apps.TurnoCentroMedicoConfig',
-    'apps.turno_profesional_salud.apps.TurnoProfesionalSaludConfig',
 ]
 
 MIDDLEWARE = [

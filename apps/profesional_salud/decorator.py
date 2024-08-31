@@ -4,7 +4,7 @@ from django.core.exceptions import PermissionDenied
 def profesional_salud_required():
     def in_group(user):
         if user.is_authenticated:
-            if (hasattr(user, 'profesional_salud') and user.profesional_salud.groups.name == "Profesional_Salud"):
+            if (hasattr(user, 'profesionalsalud') and user.profesionalsalud.groups.name == "Profesional_Salud"):
                 return True
             else:
                 raise PermissionDenied

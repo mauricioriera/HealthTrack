@@ -1,54 +1,33 @@
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.core.signing import TimestampSigner
-from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse
+from django.views.generic import ListView
 
-from apps.paciente.models import paciente
+from apps.paciente.models import Paciente
 from apps.profesional_salud.decorator import profesional_salud_required
 
 
-@login_required
-def prueba(request):
-    return render(request, 'test.html', {})
-
-
-@login_required
-def vista_pincipal_ps(request):
-    usuario = request.user
-    context = {
-        'usuario ': usuario
-    }
-    return render(request, 'profesional_salud/principal.html', context)
-
-
-@profesional_salud_required()
-@login_required
-def seleccion_paciente(request):
-    pacient = paciente.objects.all()
-    return render(request, 'profesional_salud/paciente_seleccion.html', {'paciente': pacient})
-
-
-@profesional_salud_required()
-@login_required
-def procesar_paciente(request):
-    if request.method == 'POST':
-        paciente_id = request.POST.get('user_id')
-        return redirect(reverse('solicitar_acceso', args=[paciente_id]))
-    return HttpResponse("Método no permitido", status=405)
+class principal(ListView):
+    model = Paciente
+    template_name = 'profesional_salud/principal.html'
+    context_object_name = 'pacientes'
 
 
 @profesional_salud_required()
 @login_required
 def solicita_acceso(request, paciente_id):
-    paciente_resultado = get_object_or_404(paciente, id=paciente_id)
+    paciente_resultado = get_object_or_404(Paciente, id=paciente_id)
     id_profesional = request.user.id
     link_aceptar = f"{settings.SITE_URL}/paciente/aceptar_solicitud/{id_profesional}/{paciente_resultado.id}"
     enviar_mail_paciente(paciente_resultado.user.email, link_aceptar, request.user.username)
-    return render(request, 'profesional_salud/principal.html')
+
+    messages.success(request, 'Solicitud de acceso enviada correctamente.')
+
+    return redirect('principal')
 
 
 def enviar_mail_paciente(paciente_email, link_aceptar, username):
@@ -65,7 +44,7 @@ def permitir_acceso(request, user_id, paciente_id):
     profesional = get_object_or_404(User, id=user_id)
     link = generar_magic_link(paciente_id)
     enviar_magic_link(profesional.email, link)
-    return render(request, 'profesional_salud/principal.html')
+    return render(request, 'registration/login.html')
 
 
 def generar_magic_link(paciente_id):
@@ -85,8 +64,8 @@ def enviar_magic_link(profesional_email, link):
     )
 
 
-def eviar_mail_denegado(request,user_id,paciente_id ):
-    paciente_encontrado = get_object_or_404(paciente, id=paciente_id)
+def eviar_mail_denegado(request, user_id, paciente_id):
+    paciente_encontrado = get_object_or_404(Paciente, id=paciente_id)
     profesional = get_object_or_404(User, id=user_id)
     send_mail(
         'Solicitud de acceso a sus archivos',

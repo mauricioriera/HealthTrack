@@ -1,20 +1,40 @@
-<html>
-<head>
-    <title>Lista de Archivos</title>
-    <script>
-        setInterval(function(){window.location.reload();},90000)
-    </script>
-</head>
-<body>
-    <h1>Lista de Archivos</h1>
-    <ul>
-        {% for archivo in archivos %}
-            <li>
-                {{ archivo.paciente.user}}
-                <a href="{% url 'mostrar_archivo' archivo.id %}" target="file_viewer">{{ archivo.titulo}}</a>
-            </li>
-        {% endfor %}
-    </ul>
-     <iframe name="file_viewer" style="width: 100%; height: 600px;" frameborder="0"></iframe>
-</body>
-</html>
+{% extends "base/base.html" %}
+{% block title %}Informes{% endblock %}
+{% block extra_head %}
+{% if request.user.is_authenticated and request.user.profesionalsalud.groups.name == "Profesional_Salud" %}
+<script>
+    setInterval(function(){window.location.reload();},90000);
+</script>
+{% endif %}
+{% endblock %}
+{% block content %}
+{% if request.user.is_authenticated and request.user.profesionalsalud.groups.name == "Profesional_Salud" %}
+<h1 class="mb-4">Lista de Informes </h1>
+{% else %}
+<h1 class="mb-4">Mis informes</h1>
+{% endif %}
+
+{% if archivos %}
+<ul class="list-group mb-4">
+    {% for archivo in archivos %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+        <strong>Fecha informe: {{ archivo.fecha_informe|date:"d/m/Y" }}</strong>
+        <a href="{% url 'mostrar_archivo' archivo.id %}" target="file_viewer" class="btn btn-primary btn-sm">{{ archivo.titulo }}</a>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<div class="alert alert-info" role="alert">
+    No hay archivos disponibles para este usuario.
+</div>
+{% endif %}
+
+<iframe name="file_viewer" style="width: 100%; height: 600px;" frameborder="0"></iframe>
+{% endblock %}
+
+
+
+
+
+
+

@@ -6,14 +6,14 @@ from django.views.generic import CreateView
 from django.contrib.auth.models import Group
 
 from apps.paciente.decorator import paciente_required
-from apps.paciente.forms import pacienteForm, RegistroForm
-from apps.paciente.models import paciente
+from apps.paciente.forms import Pacienteform, RegistroForm
+from apps.paciente.models import Paciente
 from django.contrib import messages
 
 
 class PacienteCrear(CreateView):
-    model = paciente
-    form_class = pacienteForm
+    model = Paciente
+    form_class = Pacienteform
     second_form_class = RegistroForm
     template_name = 'paciente/paciente_add.html'
     success_url = reverse_lazy('inicio')

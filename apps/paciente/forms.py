@@ -3,12 +3,12 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
 
-from apps.paciente.models import paciente
+from apps.paciente.models import Paciente
 
 
-class pacienteForm(forms.ModelForm):
+class Pacienteform(forms.ModelForm):
     class Meta:
-        model = paciente
+        model = Paciente
         fields = [
             'fecha_nacimiento',
             'dni',

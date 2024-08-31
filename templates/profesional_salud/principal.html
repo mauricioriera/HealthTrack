@@ -1,32 +1,46 @@
 {% extends "base/base.html" %}
-{% block title %}Pagina Inicio{% endblock %}
+{% block title %}Lista Pacientes{% endblock %}
 {% block content %}
-{% load static %}
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Pagina Principal</title>
-</head>
 <body>
-    <h3>Bienvenido {{ user.username}}</h3>
-     <section class="section-appointment">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-                    <div class="appointment-form-wrapper text-center clearfix">
-                            <div class="col-md-12 col-sm-12 col-xs-12">
-                                {% if request.user.is_authenticated and request.user.profesional_salud.groups.name == "Profesional_Salud" %}
-                                <a type="button" class="btn btn-info" href="{% url 'subir_informe' user.profesional_salud.id %}" role="button">Cargar informe</a>
-                                <a type="button" class="btn btn-success" href="{% url 'seleccionar' %}" role="button">Seleccionar Paciente</a>
-                                {% else %}
-                                <a type="button" class="btn btn-info" href="{% url 'lista_archivos_paciente' user.paciente.id %}">Ver informe</a>
-                                {% endif %}
-                            </div>
-                    </div>
-                </div>
+<div class="container mt-5">
+    {% if request.user.is_authenticated and request.user.profesionalsalud.groups.name == "Profesional_Salud" %}
+        <h2 class="text-center mb-4 table_title">Lista de Pacientes</h2>
+
+        <!-- Mostrar mensajes -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-        </div>
-    </section>
+        {% endfor %}
+    {% endif %}
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover align-middle">
+            <thead class="table-dark">
+            <tr>
+                <th scope="col">Nombre</th>
+                <th scope="col">Apellido</th>
+                <th scope="col">DNI</th>
+                <th scope="col" class="text-center">Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for paciente in pacientes %}
+            <tr>
+                <td>{{ paciente.user.first_name }}</td>
+                <td>{{ paciente.user.last_name }}</td>
+                <td>{{ paciente.dni }}</td>
+                <td class="text-center">
+                    <a href="{% url 'subir_informe' user.profesionalsalud.id paciente.id %}" class="btn btn-success btn-sm me-2">Cargar Informe</a>
+                    <a href= "{% url 'solicitar_acceso' paciente.id %}" class="btn btn-info btn-sm">Solicitar Historial Clinico</a>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
 </body>
-</html>
 {% endblock %}

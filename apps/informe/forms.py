@@ -1,21 +1,24 @@
 from django import forms
-from apps.informe.models import informe
-from apps.paciente.models import paciente
+
+from apps.informe.models import Informe
 
 
-class informeForm(forms.ModelForm):
-    paciente= forms.ModelChoiceField(queryset=paciente.objects.filter(groups=1))
-    archivo= forms.FileField()
-    titulo= forms.CharField()
+class InformeForm(forms.ModelForm):
+    archivo = forms.FileField()
+    titulo = forms.CharField()
+
     class Meta:
-        model = informe
+        model = Informe
         fields = [
-            'paciente',
             'titulo',
             'archivo',
+            'fecha_informe',
         ]
         labels = {
-            'paciente':'Paciente',
-            'titulo':'Título del informe',
-            'archivo':'Informe',
+            'titulo': 'Título del informe',
+            'archivo': 'Informe',
+            'fecha_informe': 'Fecha del informe',
+        }
+        widgets = {
+            'fecha_informe': forms.DateInput(attrs={'type': 'date'}),
         }
