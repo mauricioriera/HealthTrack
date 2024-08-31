@@ -4,11 +4,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.core.signing import TimestampSigner
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView
 
+from apps.informe.forms import TiempoForm
 from apps.paciente.models import Paciente
 from apps.profesional_salud.decorator import profesional_salud_required
+import base64
 
 
 class principal(ListView):
@@ -40,17 +43,30 @@ def enviar_mail_paciente(paciente_email, link_aceptar, username):
     )
 
 
-def permitir_acceso(request, user_id, paciente_id):
+def permitir_acceso(request, user_id, paciente_id, tiempo_acceso):
+    link = generar_magic_link(paciente_id, tiempo_acceso)
     profesional = get_object_or_404(User, id=user_id)
-    link = generar_magic_link(paciente_id)
     enviar_magic_link(profesional.email, link)
     return render(request, 'registration/login.html')
 
+def solicitar_tiempo_acceso(request, user_id, paciente_id):
+    if request.method == "POST":
+        form = TiempoForm(request.POST)
+        if form.is_valid():
 
-def generar_magic_link(paciente_id):
+            return permitir_acceso(request, user_id, paciente_id, form.cleaned_data['duracion_permiso'])
+
+    else:
+        form = TiempoForm()
+
+    return render(request, "profesional_salud/solicitar_tiempo.html", {"form": form})
+
+def generar_magic_link(paciente_id, tiempo_acceso):
     signer = TimestampSigner()
     token = signer.sign(paciente_id)
-    link = f"{settings.SITE_URL}/informe/lista/profesional/{token}/"
+    tiempo_codificado = base64.b64encode(tiempo_acceso.to_bytes(2, byteorder='big'))
+    tiempo_final = tiempo_codificado.decode('utf-8')
+    link = f"{settings.SITE_URL}/informe/lista/profesional/{token}/{tiempo_final}"
     return link
 
 

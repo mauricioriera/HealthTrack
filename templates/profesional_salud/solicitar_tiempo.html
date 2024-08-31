@@ -1,0 +1,29 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Selección de tiempo{% endblock %}
+
+{% block content %}
+<section class="page-header bg-primary text-white py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12 text-center">
+                <h3>SELECCIÓN DE TIEMPO</h3>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-appointment py-5">
+    <div class="container">
+        <div class="appointment-form-wrapper clearfix">
+            <form method='post' class="appoinment-form">
+                {% csrf_token %}
+                <div class="row">
+                    {{ form }}
+                    <input type="submit" value="Submit">
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

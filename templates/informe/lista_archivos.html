@@ -3,7 +3,7 @@
 {% block extra_head %}
 {% if request.user.is_authenticated and request.user.profesionalsalud.groups.name == "Profesional_Salud" %}
 <script>
-    setInterval(function(){window.location.reload();},90000);
+    setInterval(function(){window.location.reload();},{{ tiempo }});
 </script>
 {% endif %}
 {% endblock %}

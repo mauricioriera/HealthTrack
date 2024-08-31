@@ -1,3 +1,5 @@
+import base64
+
 import magic
 from django.contrib.auth.decorators import login_required
 from django.core.signing import TimestampSigner, SignatureExpired, BadSignature
@@ -50,17 +52,21 @@ def lista_archivos_paciente(request, paciente_id):
 
 @profesional_salud_required()
 @login_required
-def lista_archivos_profesional(request, token):
+def lista_archivos_profesional(request, token, tiempo_codificado):
     signer = TimestampSigner()
+    tiempo_bytes = base64.b64decode(tiempo_codificado)
+    tiempo = int.from_bytes(tiempo_bytes, byteorder='big') * 60
     try:
-        paciente_id = signer.unsign(token, max_age=90)
+        paciente_id = signer.unsign(token, max_age=tiempo)
     except SignatureExpired:
         return render(request, 'profesional_salud/error_expiracion.html')
     except BadSignature:
         return render(request, 'profesional_salud/error_enlace.html')
 
     archivos = Informe.objects.filter(paciente_id=paciente_id)
-    return render(request, 'informe/lista_archivos.html', {'archivos': archivos})
+    tiempo_mili = tiempo * 1000
+    return render(request, 'informe/lista_archivos.html', {'archivos': archivos,'tiempo': tiempo_mili})
+
 
 
 def mostrar_archivo(request, archivo_id):

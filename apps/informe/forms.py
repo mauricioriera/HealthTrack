@@ -22,3 +22,5 @@ class InformeForm(forms.ModelForm):
         widgets = {
             'fecha_informe': forms.DateInput(attrs={'type': 'date'}),
         }
+class TiempoForm(forms.Form):
+    duracion_permiso = forms.IntegerField(label="Duración del permiso")
