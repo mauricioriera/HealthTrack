@@ -9,21 +9,21 @@ class ProfesionalSaludform(forms.ModelForm):
     class Meta:
         model = ProfesionalSalud
         fields = [
-            'dni',
+            'matricula',
             'domicilio_consultorio',
-            'especilidad',
+            'especialidad',
 
         ]
         labels = {
-            'dni': 'DNI',
-            'domicilio_consultorio': 'dirección consultorio',
-            'especilidad': 'espécialidad',
+            'matricula': 'Matricula número',
+            'domicilio_consultorio': 'Dirección Consultorio',
+            'especialidad': 'Especialidad',
 
         }
         widgets = {
-            'dni': forms.NumberInput(attrs={'class': 'form-control'}),
-            'domicilio_consultorio': forms.TextImput(attrs={'class': 'form-control'}),
-            'especilidad': forms.TextImput(attrs={'class': 'form-control'}),
+            'matricula': forms.TextInput(attrs={'class': 'form-control'}),
+            'domicilio_consultorio': forms.TextInput(attrs={'class': 'form-control'}),
+            'especialidad': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
 
