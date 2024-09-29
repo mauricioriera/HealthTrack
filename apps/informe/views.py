@@ -1,6 +1,11 @@
 import base64
+import os
 
 import magic
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization, hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from django.contrib.auth.decorators import login_required
 from django.core.signing import TimestampSigner, SignatureExpired, BadSignature
 from django.http import HttpResponse
@@ -28,14 +33,18 @@ def subir_archivo(request, profesional_id, paciente_id):
 
             # Lee el archivo y conviértelo a binario
             archivo_binario = archivo.read()
+            llave_aes = generar_llave_aes()
+            llave_aes_con_rsa = encriptar_llave_aes_con_rsa(llave_aes, cargar_llave_publica(paciente.llave_publica))
+            archivo_encriptado = encriptar_archivo_con_aes(archivo_binario, llave_aes)
 
             # Guarda el archivo en la base de datos
             Informe.objects.create(
                 paciente=paciente,
                 profesional_salud=profesional,
                 titulo=titulo,
-                archivo=archivo_binario,
+                archivo=archivo_encriptado,
                 fecha_informe=fecha_informe,
+                llave_simetrica_encriptada=llave_aes_con_rsa
             )
             return redirect('principal')  # Redirige a una página de lista o de éxito
     else:
@@ -46,6 +55,7 @@ def subir_archivo(request, profesional_id, paciente_id):
 @paciente_required()
 @login_required
 def lista_archivos_paciente(request, paciente_id):
+
     archivos = Informe.objects.filter(paciente_id=paciente_id).order_by('-fecha_informe')
     return render(request, 'informe/lista_archivos.html', {'archivos': archivos})
 
@@ -79,3 +89,30 @@ def mostrar_archivo(request, archivo_id):
     response = HttpResponse(archivo.archivo, content_type=content_type)
     response['Content-Disposition'] = f'inline; filename="informe"'
     return response
+
+
+def generar_llave_aes():
+    return os.urandom(32)
+def encriptar_llave_aes_con_rsa(llave_aes,llave_publica):
+    llave_encriptada= llave_publica.encrypt(
+        llave_aes,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    )
+    return  llave_encriptada
+def encriptar_archivo_con_aes(contenido_archivo,llave_aes):
+    iv=os.urandom(16)
+    cipher=Cipher(algorithms.AES(llave_aes),modes.CFB(iv),backend=default_backend())
+    encriptador= cipher.encryptor()
+    datos_encriptados= encriptador.update(contenido_archivo)+ encriptador.finalize()
+    return iv+datos_encriptados
+
+def cargar_llave_publica(llave_publica):
+    llave_publica_obj=serialization.load_pem_public_key(
+        llave_publica.encode('utf-8'),
+        backend=default_backend()
+    )
+    return llave_publica_obj

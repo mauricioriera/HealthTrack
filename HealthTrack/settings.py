@@ -147,8 +147,3 @@ EMAIL_HOST_USER = 'piratapruebatesis@hotmail.com'
 EMAIL_HOST_PASSWORD = 'Pirata190387'  # O una contraseña de aplicación si tienes 2FA activado
 DEFAULT_FROM_EMAIL = 'piratapruebatesis@hotmail.com'
 
-#Propiedades Criptographics
-
-CRYPTOGRAPHY_DIGEST= hashes.SHA256()
-CRYPTOGRAPHY_KEY=os.getenv('CRYPTOGRAPHY_KEY')
-CRYPTOGRAPHY_SALT=os.getenv('CRYPTOGRAPHY_SALT')

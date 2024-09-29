@@ -4,9 +4,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
 from django.core.mail import send_mail
 from django.core.signing import TimestampSigner
-from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
 from django.views.generic import ListView, CreateView
 from apps.informe.forms import TiempoForm
 from apps.paciente.models import Paciente
@@ -119,9 +120,29 @@ class ProfesionalCrear(CreateView):
             g = Group.objects.get(name='Profesional_Salud')
             profesional_salud.groups = g
             g.user_set.add(profesional_salud.user)
+            private_key = rsa.generate_private_key(
+                public_exponent=65537,
+                key_size=2048
+            )
+            public_key = private_key.public_key()
+            public_pem = public_key.public_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PublicFormat.SubjectPublicKeyInfo
+            )
+            profesional_salud.llave_publica = public_pem.decode('utf-8')
             profesional_salud.save()
-            messages.add_message(request, messages.SUCCESS, 'Su perfil se creo correctamente')
-            return HttpResponseRedirect(self.get_success_url())
+            private_pem = private_key.private_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PrivateFormat.PKCS8,
+                encryption_algorithm=serialization.NoEncryption()
+            )
+            messages.add_message(request, messages.SUCCESS, 'Su perfil se creó correctamente.')
+            return render(request, self.template_name, {
+                'form': form,
+                'form2': form2,
+                'private_key': private_pem.decode('utf-8')
+            })
+
         else:
             messages.add_message(request, messages.ERROR, 'Su perfil no se pudo crear')
             return render(request, self.template_name, {'form': form, 'form2': form2})

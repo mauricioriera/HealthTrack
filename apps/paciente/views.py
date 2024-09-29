@@ -1,10 +1,10 @@
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from django.contrib.auth.models import Group
-
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
 from apps.paciente.decorator import paciente_required
 from apps.paciente.forms import Pacienteform, RegistroForm
 from apps.paciente.models import Paciente
@@ -36,13 +36,32 @@ class PacienteCrear(CreateView):
             g = Group.objects.get(name='Paciente')
             paciente.groups = g
             g.user_set.add(paciente.user)
+            private_key = rsa.generate_private_key(
+                public_exponent=65537,
+                key_size=2048
+            )
+            public_key = private_key.public_key()
+            public_pem = public_key.public_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PublicFormat.SubjectPublicKeyInfo
+            )
+            paciente.llave_publica = public_pem.decode('utf-8')
             paciente.save()
-            messages.add_message(request, messages.SUCCESS, 'Su perfil se creo correctamente')
-            return HttpResponseRedirect(self.get_success_url())
+            private_pem = private_key.private_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PrivateFormat.PKCS8,
+                encryption_algorithm=serialization.NoEncryption()
+            )
+            messages.add_message(request, messages.SUCCESS, 'Su perfil se creó correctamente.')
+            return render(request, self.template_name, {
+                'form': form,
+                'form2': form2,
+                'private_key': private_pem.decode('utf-8')
+            })
+
         else:
             messages.add_message(request, messages.ERROR, 'Su perfil no se pudo crear')
             return render(request, self.template_name, {'form': form, 'form2': form2})
-
 @paciente_required()
 @login_required
 def aceptar_solicitud(request,user_id, paciente_id):
