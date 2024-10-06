@@ -1,0 +1,14 @@
+{% extends 'base/base.html' %}
+
+{% block title %}clave privada{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mt-4">Desencriptar archivo</h2>
+        <form method="post" >
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Desencriptar</button>
+        </form>
+</div>
+{% endblock %}

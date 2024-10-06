@@ -14,12 +14,12 @@
 <h1 class="mb-4">Mis informes</h1>
 {% endif %}
 
-{% if archivos %}
+{% if informes %}
 <ul class="list-group mb-4">
-    {% for archivo in archivos %}
+    {% for informe in informes %}
     <li class="list-group-item d-flex justify-content-between align-items-center">
-        <strong>Fecha informe: {{ archivo.fecha_informe|date:"d/m/Y" }}</strong>
-        <a href="{% url 'mostrar_archivo' archivo.id %}" target="file_viewer" class="btn btn-primary btn-sm">{{ archivo.titulo }}</a>
+        <strong>Fecha informe: {{ informe.fecha_informe|date:"d/m/Y" }}</strong>
+        <a href="{% url 'mostrar_archivo' informe.id %}" target="file_viewer" class="btn btn-primary btn-sm">{{ informe.titulo }}</a>
     </li>
     {% endfor %}
 </ul>

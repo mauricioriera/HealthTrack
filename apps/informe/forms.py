@@ -24,3 +24,11 @@ class InformeForm(forms.ModelForm):
         }
 class TiempoForm(forms.Form):
     duracion_permiso = forms.IntegerField(label="Duración del permiso")
+class DesencriptarArchivoForm(forms.Form):
+    llave = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'placeholder': 'Ingrese su llave privada aquí...',
+            'rows':10,
+            'cols':40
+        }),
+    )

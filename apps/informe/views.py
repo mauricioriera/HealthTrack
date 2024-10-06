@@ -11,7 +11,7 @@ from django.core.signing import TimestampSigner, SignatureExpired, BadSignature
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
-from apps.informe.forms import InformeForm
+from apps.informe.forms import InformeForm, DesencriptarArchivoForm
 from apps.informe.models import Informe
 from apps.paciente.decorator import paciente_required
 from apps.paciente.models import Paciente
@@ -56,9 +56,22 @@ def subir_archivo(request, profesional_id, paciente_id):
 @login_required
 def lista_archivos_paciente(request, paciente_id):
 
-    archivos = Informe.objects.filter(paciente_id=paciente_id).order_by('-fecha_informe')
-    return render(request, 'informe/lista_archivos.html', {'archivos': archivos})
+    return desencriptar_archivos(request, paciente_id)
 
+def desencriptar_archivos(request,paciente_id):
+    informes = Informe.objects.filter(paciente_id=paciente_id).order_by('-fecha_informe')
+
+
+    if request.method == 'POST':
+        form= DesencriptarArchivoForm(request.POST)
+        if form.is_valid():
+            llave_privada=form.cleaned_data['llave']
+            request.session['llave_privada'] = llave_privada
+
+            return render(request, 'informe/lista_archivos.html',{'informes': informes})
+    else:
+        form= DesencriptarArchivoForm()
+    return render(request, 'informe/desencriptar_archivo.html',{'form':form})
 
 @profesional_salud_required()
 @login_required
@@ -80,13 +93,16 @@ def lista_archivos_profesional(request, token, tiempo_codificado):
 
 
 def mostrar_archivo(request, archivo_id):
-    archivo = get_object_or_404(Informe, id=archivo_id)
+    informe = get_object_or_404(Informe, id=archivo_id)
+
+    llave_aes = desencriptar_llave_aes_con_rsa(informe.llave_simetrica_encriptada, request.session.get('llave_privada'))
+    informe_desencriptado = desencriptar_informe_con_llave_aes(llave_aes, informe.archivo)
 
     # Usa python-magic para detectar el tipo MIME del archivo
     mime = magic.Magic(mime=True)
-    content_type = mime.from_buffer(archivo.archivo)
+    content_type = mime.from_buffer(informe_desencriptado)
 
-    response = HttpResponse(archivo.archivo, content_type=content_type)
+    response = HttpResponse(informe_desencriptado, content_type=content_type)
     response['Content-Disposition'] = f'inline; filename="informe"'
     return response
 
@@ -116,3 +132,28 @@ def cargar_llave_publica(llave_publica):
         backend=default_backend()
     )
     return llave_publica_obj
+def desencriptar_llave_aes_con_rsa(llave_simetrica_encriptada,llave_privada_str):
+    llave_privada = cargar_llave_privada(llave_privada_str)
+    llave_aes=llave_privada.decrypt(
+        llave_simetrica_encriptada,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    )
+    return llave_aes
+def desencriptar_informe_con_llave_aes(llave_aes, archivo):
+    iv=archivo[:16]
+    datos_desencriptados=archivo[16:]
+    cipher= Cipher(algorithms.AES(llave_aes),modes.CFB(iv),backend=default_backend())
+    decryptor= cipher.decryptor()
+
+    datos_desencriptados= decryptor.update(datos_desencriptados) + decryptor.finalize()
+    return datos_desencriptados
+
+def cargar_llave_privada(clave):
+    return serialization.load_pem_private_key(
+        clave.encode(),
+        password=None,
+    )
