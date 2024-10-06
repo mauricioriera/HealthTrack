@@ -22,8 +22,15 @@ class InformeForm(forms.ModelForm):
         widgets = {
             'fecha_informe': forms.DateInput(attrs={'type': 'date'}),
         }
-class TiempoForm(forms.Form):
+class AceptarSolicitudForm(forms.Form):
     duracion_permiso = forms.IntegerField(label="Duración del permiso")
+    llave = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'placeholder': 'Ingrese su llave privada aquí...',
+            'rows': 10,
+            'cols': 40
+        }),
+    )
 class DesencriptarArchivoForm(forms.Form):
     llave = forms.CharField(
         widget=forms.Textarea(attrs={

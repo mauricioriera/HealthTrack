@@ -9,7 +9,7 @@ from django.urls import reverse_lazy
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
 from django.views.generic import ListView, CreateView
-from apps.informe.forms import TiempoForm
+from apps.informe.forms import AceptarSolicitudForm
 from apps.paciente.models import Paciente
 from apps.profesional_salud.decorator import profesional_salud_required
 import base64
@@ -35,6 +35,16 @@ def solicita_acceso(request, paciente_id):
 
     return redirect('principal')
 
+def solicitar_tiempo_acceso(request, user_id, paciente_id):
+    if request.method == "POST":
+        form = AceptarSolicitudForm(request.POST)
+        if form.is_valid():
+            request.session['llave_paciente']=form.cleaned_data['llave']
+            return permitir_acceso(request, user_id, paciente_id, form.cleaned_data['duracion_permiso'])
+    else:
+        form = AceptarSolicitudForm()
+    return render(request, "profesional_salud/solicitar_tiempo.html", {"form": form})
+
 
 def enviar_mail_paciente(paciente_email, link_aceptar, username):
     send_mail(
@@ -47,22 +57,23 @@ def enviar_mail_paciente(paciente_email, link_aceptar, username):
 
 
 def permitir_acceso(request, user_id, paciente_id, tiempo_acceso):
+    
+
+
     link = generar_magic_link(paciente_id, tiempo_acceso)
     profesional = get_object_or_404(User, id=user_id)
     enviar_magic_link(profesional.email, link)
     return render(request, 'registration/login.html')
 
-def solicitar_tiempo_acceso(request, user_id, paciente_id):
-    if request.method == "POST":
-        form = TiempoForm(request.POST)
-        if form.is_valid():
 
-            return permitir_acceso(request, user_id, paciente_id, form.cleaned_data['duracion_permiso'])
 
-    else:
-        form = TiempoForm()
 
-    return render(request, "profesional_salud/solicitar_tiempo.html", {"form": form})
+
+
+
+
+
+
 
 def generar_magic_link(paciente_id, tiempo_acceso):
     signer = TimestampSigner()
@@ -146,3 +157,4 @@ class ProfesionalCrear(CreateView):
         else:
             messages.add_message(request, messages.ERROR, 'Su perfil no se pudo crear')
             return render(request, self.template_name, {'form': form, 'form2': form2})
+

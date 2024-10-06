@@ -10,8 +10,8 @@
                     <p class="lead mb-4">Elige si quieres permitir o denegar el acceso a tus archivos.</p>
                     <div class="col-md-12">
                         {% if request.user.is_authenticated %}
-                        <a class="btn btn-success btn-lg" href="{% url 'permitir_acceso' user_id paciente_id %}" role="button">Permitir Acceso</a>
-                        <a class="btn btn-danger-acceso btn-lg mr-3" href="{% url 'denegar_acceso' user_id paciente_id %}" role="button">Denegar Acceso</a>
+                        <a class="btn btn-success btn-lg" href="{% url 'permitir_acceso' medico_id paciente_id %}" role="button">Permitir Acceso</a>
+                        <a class="btn btn-danger-acceso btn-lg mr-3" href="{% url 'denegar_acceso' medico_id paciente_id %}" role="button">Denegar Acceso</a>
                         {% endif %}
                     </div>
                 </div> <!-- end .appointment-form-wrapper -->

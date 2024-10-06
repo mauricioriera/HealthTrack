@@ -3,6 +3,21 @@
 {% block title %}Registro de Profesional de la Salud{% endblock %}
 
 {% block content %}
+{% if private_key %}
+        <div class="alert alert-success">
+            <p>Su clave privada es:</p>
+            <textarea id="privateKey" rows="10" readonly>{{ private_key }}</textarea>
+            <button id="copyButton">Copiar clave privada</button>
+            <button id="redirectButton" style="display: none;">Volver al inicio</button> <!-- Botón de redirección oculto por defecto -->
+        </div>
+    {% endif %}
+{% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
 <section class="page-header bg-primary text-white py-5">
     <div class="container">
         <div class="row">
@@ -153,5 +168,36 @@
             </form>
         </div>
     </div>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const copyButton = document.getElementById("copyButton");
+        const copyText = document.getElementById("privateKey");
+        const redirectButton = document.getElementById("redirectButton");
+
+        if (copyButton && copyText) {
+            copyButton.addEventListener("click", function() {
+                // Utilizando la API de portapapeles moderna
+                navigator.clipboard.writeText(copyText.value)
+                .then(function() {
+                    alert("Clave privada copiada al portapapeles");
+                    // Activar el botón de redirección
+                    if (redirectButton) {
+                        redirectButton.style.display = "inline-block"; // Mostrar el botón de redirección
+                    }
+                })
+                .catch(function(err) {
+                    alert("Error al copiar la clave: " + err);
+                });
+            });
+        }
+
+        // Asignar evento al botón de redirección
+        if (redirectButton) {
+            redirectButton.addEventListener("click", function() {
+                window.location.href = "{% url 'inicio' %}"; // Redirigir a la URL de inicio
+            });
+        }
+    });
+    </script>
 </section>
 {% endblock %}

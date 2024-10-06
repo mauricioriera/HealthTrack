@@ -64,6 +64,6 @@ class PacienteCrear(CreateView):
             return render(request, self.template_name, {'form': form, 'form2': form2})
 @paciente_required()
 @login_required
-def aceptar_solicitud(request,user_id, paciente_id):
-    context={'user_id':user_id, 'paciente_id':paciente_id}
+def aceptar_solicitud(request,medico_id, paciente_id):
+    context={'medico_id':medico_id, 'paciente_id':paciente_id}
     return render(request,'paciente/aceptar_solicitud.html', context)
