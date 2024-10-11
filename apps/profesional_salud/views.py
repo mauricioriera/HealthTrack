@@ -1,3 +1,9 @@
+import os
+import threading
+import time
+
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -6,16 +12,16 @@ from django.core.mail import send_mail
 from django.core.signing import TimestampSigner
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives import serialization, hashes
 from django.views.generic import ListView, CreateView
 from apps.informe.forms import AceptarSolicitudForm
+from apps.informe.models import Informe, InformeTemporal
 from apps.paciente.models import Paciente
 from apps.profesional_salud.decorator import profesional_salud_required
 import base64
 from apps.profesional_salud.forms import ProfesionalSaludform, RegistroForm
 from apps.profesional_salud.models import ProfesionalSalud
-
 
 class principal(ListView):
     model = Paciente
@@ -57,22 +63,46 @@ def enviar_mail_paciente(paciente_email, link_aceptar, username):
 
 
 def permitir_acceso(request, user_id, paciente_id, tiempo_acceso):
-    
 
+    informes = Informe.objects.filter(paciente_id=paciente_id)
+    profesional = ProfesionalSalud.objects.get(id=user_id)
+    paciente = Paciente.objects.get(id=paciente_id)
+
+    for informe in informes:
+        llave_aes = desencriptar_llave_aes_con_rsa(informe.llave_simetrica_encriptada, request.session.get('llave_paciente'))
+        informe_desencriptado = desencriptar_informe_con_llave_aes(llave_aes, informe.archivo)
+
+        llave_aes = generar_llave_aes()
+        llave_aes_con_rsa = encriptar_llave_aes_con_rsa(llave_aes, cargar_llave_publica(profesional.llave_publica))
+        archivo_encriptado = encriptar_archivo_con_aes(informe_desencriptado, llave_aes)
+
+        InformeTemporal.objects.create(
+            paciente=paciente,
+            profesional_salud=profesional,
+            titulo=informe.titulo,
+            archivo=archivo_encriptado,
+            fecha_informe=informe.fecha_informe,
+            llave_simetrica_encriptada=llave_aes_con_rsa
+        )
+
+    profesional_id = profesional.id
+
+    hilo = threading.Thread(target=limpiar_tabla_temporal,args=(paciente_id, profesional_id, tiempo_acceso))
+    hilo.daemon = True
+    hilo.start()
 
     link = generar_magic_link(paciente_id, tiempo_acceso)
     profesional = get_object_or_404(User, id=user_id)
     enviar_magic_link(profesional.email, link)
+
     return render(request, 'registration/login.html')
 
-
-
-
-
-
-
-
-
+def limpiar_tabla_temporal(paciente_id, profesional_id, tiempo_acceso):
+    time.sleep(tiempo_acceso * 60)
+    while True:
+        objetos_a_eliminar =InformeTemporal.objects.filter(paciente_id=paciente_id, profesional_salud_id=profesional_id)
+        count, _ = objetos_a_eliminar.delete()
+        time.sleep(tiempo_acceso * 60)
 
 
 def generar_magic_link(paciente_id, tiempo_acceso):
@@ -158,3 +188,53 @@ class ProfesionalCrear(CreateView):
             messages.add_message(request, messages.ERROR, 'Su perfil no se pudo crear')
             return render(request, self.template_name, {'form': form, 'form2': form2})
 
+def desencriptar_llave_aes_con_rsa(llave_simetrica_encriptada,llave_paciente_str):
+    llave_privada = cargar_llave_privada(llave_paciente_str)
+    llave_aes=llave_privada.decrypt(
+        llave_simetrica_encriptada,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    )
+    return llave_aes
+def desencriptar_informe_con_llave_aes(llave_aes, archivo):
+    iv=archivo[:16]
+    datos_desencriptados=archivo[16:]
+    cipher= Cipher(algorithms.AES(llave_aes),modes.CFB(iv),backend=default_backend())
+    decryptor= cipher.decryptor()
+
+    datos_desencriptados= decryptor.update(datos_desencriptados) + decryptor.finalize()
+    return datos_desencriptados
+
+def cargar_llave_privada(clave):
+    return serialization.load_pem_private_key(
+        clave.encode(),
+        password=None,
+    )
+def generar_llave_aes():
+    return os.urandom(32)
+def encriptar_llave_aes_con_rsa(llave_aes,llave_publica):
+    llave_encriptada= llave_publica.encrypt(
+        llave_aes,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    )
+    return  llave_encriptada
+def encriptar_archivo_con_aes(contenido_archivo,llave_aes):
+    iv=os.urandom(16)
+    cipher=Cipher(algorithms.AES(llave_aes),modes.CFB(iv),backend=default_backend())
+    encriptador= cipher.encryptor()
+    datos_encriptados= encriptador.update(contenido_archivo)+ encriptador.finalize()
+    return iv+datos_encriptados
+
+def cargar_llave_publica(llave_publica):
+    llave_publica_obj=serialization.load_pem_public_key(
+        llave_publica.encode('utf-8'),
+        backend=default_backend()
+    )
+    return llave_publica_obj

@@ -12,7 +12,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from apps.informe.forms import InformeForm, DesencriptarArchivoForm
-from apps.informe.models import Informe
+from apps.informe.models import Informe, InformeTemporal
 from apps.paciente.decorator import paciente_required
 from apps.paciente.models import Paciente
 from apps.profesional_salud.decorator import profesional_salud_required
@@ -86,19 +86,30 @@ def lista_archivos_profesional(request, token, tiempo_codificado):
     except BadSignature:
         return render(request, 'profesional_salud/error_enlace.html')
 
-    archivos = Informe.objects.filter(paciente_id=paciente_id)
     tiempo_mili = tiempo * 1000
-    return render(request, 'informe/lista_archivos.html', {'archivos': archivos,'tiempo': tiempo_mili})
+
+    profesional_id = request.user.profesionalsalud.id
+    informes = InformeTemporal.objects.filter(paciente_id=paciente_id, profesional_salud_id=profesional_id)
 
 
+    if request.method == 'POST':
+        form= DesencriptarArchivoForm(request.POST)
+        if form.is_valid():
+            llave_privada=form.cleaned_data['llave']
+            request.session['llave_privada_profesional'] = llave_privada
 
-def mostrar_archivo(request, archivo_id):
+            return render(request, 'informe/lista_archivos.html',{'informes': informes, 'tiempo': tiempo_mili})
+    else:
+        form= DesencriptarArchivoForm()
+    return render(request, 'informe/desencriptar_archivo.html',{'form': form})
+
+
+def mostrar_archivo_paciente(request, archivo_id):
     informe = get_object_or_404(Informe, id=archivo_id)
 
     llave_aes = desencriptar_llave_aes_con_rsa(informe.llave_simetrica_encriptada, request.session.get('llave_privada'))
     informe_desencriptado = desencriptar_informe_con_llave_aes(llave_aes, informe.archivo)
 
-    # Usa python-magic para detectar el tipo MIME del archivo
     mime = magic.Magic(mime=True)
     content_type = mime.from_buffer(informe_desencriptado)
 
@@ -106,6 +117,18 @@ def mostrar_archivo(request, archivo_id):
     response['Content-Disposition'] = f'inline; filename="informe"'
     return response
 
+def mostrar_archivo_profesional(request, archivo_id):
+    informe = get_object_or_404(InformeTemporal, id=archivo_id)
+
+    llave_aes = desencriptar_llave_aes_con_rsa(informe.llave_simetrica_encriptada, request.session.get('llave_privada_profesional'))
+    informe_desencriptado = desencriptar_informe_con_llave_aes(llave_aes, informe.archivo)
+
+    mime = magic.Magic(mime=True)
+    content_type = mime.from_buffer(informe_desencriptado)
+
+    response = HttpResponse(informe_desencriptado, content_type=content_type)
+    response['Content-Disposition'] = f'inline; filename="informe"'
+    return response
 
 def generar_llave_aes():
     return os.urandom(32)
