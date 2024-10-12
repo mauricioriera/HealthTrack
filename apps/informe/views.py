@@ -1,5 +1,6 @@
 import base64
 import os
+from datetime import timedelta
 
 import magic
 from cryptography.hazmat.backends import default_backend
@@ -10,13 +11,15 @@ from django.contrib.auth.decorators import login_required
 from django.core.signing import TimestampSigner, SignatureExpired, BadSignature
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import timezone
 
 from apps.informe.forms import InformeForm, DesencriptarArchivoForm
-from apps.informe.models import Informe, InformeTemporal
+from apps.informe.models import Informe, InformeTemporal, Solicitud
 from apps.paciente.decorator import paciente_required
 from apps.paciente.models import Paciente
 from apps.profesional_salud.decorator import profesional_salud_required
 from apps.profesional_salud.models import ProfesionalSalud
+from apps.profesional_salud.utils import EstadoSolicitud
 
 
 @profesional_salud_required()
@@ -75,20 +78,26 @@ def desencriptar_archivos(request,paciente_id):
 
 @profesional_salud_required()
 @login_required
-def lista_archivos_profesional(request, token, tiempo_codificado):
-    signer = TimestampSigner()
-    tiempo_bytes = base64.b64decode(tiempo_codificado)
-    tiempo = int.from_bytes(tiempo_bytes, byteorder='big') * 60
-    try:
-        paciente_id = signer.unsign(token, max_age=tiempo)
-    except SignatureExpired:
-        return render(request, 'profesional_salud/error_expiracion.html')
-    except BadSignature:
-        return render(request, 'profesional_salud/error_enlace.html')
-
-    tiempo_mili = tiempo * 1000
+def lista_archivos_profesional(request, paciente_id):
 
     profesional_id = request.user.profesionalsalud.id
+
+    try:
+        solicitud = Solicitud.objects.get(profesional_salud = profesional_id, paciente = paciente_id, estado = EstadoSolicitud.ACEPTADA.value)
+    except:
+        return render(request, 'profesional_salud/error_expiracion.html')
+
+    tiempo_expiracion = solicitud.fecha_creacion + timedelta(minutes=solicitud.tiempo_de_vida)
+    esta_expirado = timezone.now() > tiempo_expiracion
+
+    if esta_expirado:
+        return render(request, 'profesional_salud/error_expiracion.html')
+
+
+    tiempo_segundos = solicitud.tiempo_de_vida * 60
+
+    tiempo_mili = tiempo_segundos * 1000
+
     informes = InformeTemporal.objects.filter(paciente_id=paciente_id, profesional_salud_id=profesional_id)
 
 

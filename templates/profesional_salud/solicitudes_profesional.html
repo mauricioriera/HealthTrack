@@ -1,0 +1,28 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Solicitudes{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Solicitudes</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Paciente</th>
+                <th>Estado Solicitud</th>
+                <th>Accion</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for solicitud in solicitudes %}
+            <tr>
+                <td>{{ solicitud.paciente }}</td>
+                <td>{{ solicitud.estado }}</td>
+                <td>
+                    <a href="{% url 'lista_archivos_profesional' solicitud.paciente.id %}" class="btn btn-success btn-sm">Ver informes</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

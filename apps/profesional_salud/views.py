@@ -10,18 +10,21 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
 from django.core.mail import send_mail
 from django.core.signing import TimestampSigner
+from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.primitives import serialization, hashes
 from django.views.generic import ListView, CreateView
 from apps.informe.forms import AceptarSolicitudForm
-from apps.informe.models import Informe, InformeTemporal
+from apps.informe.models import Informe, InformeTemporal, Solicitud
 from apps.paciente.models import Paciente
 from apps.profesional_salud.decorator import profesional_salud_required
 import base64
 from apps.profesional_salud.forms import ProfesionalSaludform, RegistroForm
 from apps.profesional_salud.models import ProfesionalSalud
+from apps.profesional_salud.utils import EstadoSolicitud
+
 
 class principal(ListView):
     model = Paciente
@@ -32,14 +35,22 @@ class principal(ListView):
 @profesional_salud_required()
 @login_required
 def solicita_acceso(request, paciente_id):
-    paciente_resultado = get_object_or_404(Paciente, id=paciente_id)
-    id_profesional = request.user.id
-    link_aceptar = f"{settings.SITE_URL}/paciente/aceptar_solicitud/{id_profesional}/{paciente_resultado.id}"
-    enviar_mail_paciente(paciente_resultado.user.email, link_aceptar, request.user.username)
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+    profesional_salud = get_object_or_404(ProfesionalSalud,id=request.user.profesionalsalud.id)
+    solicitud_existente = Solicitud.objects.filter(profesional_salud=profesional_salud.id, paciente=paciente.id,
+                                                   estado=EstadoSolicitud.PENDIENTE.value).exists()
 
-    messages.success(request, 'Solicitud de acceso enviada correctamente.')
+    if not solicitud_existente:
+        Solicitud.objects.create(
+            paciente=paciente,
+            profesional_salud=profesional_salud,
+            estado=EstadoSolicitud.PENDIENTE.value
+        )
+        messages.add_message(request, messages.SUCCESS, 'Solicitud enviada exitosamente')
+    else:
+        messages.add_message(request, messages.ERROR, 'Usted ya ha emitido una solicitud para este paciente')
 
-    return redirect('principal')
+    return redirect('principal')  # Redirige a la página del médico con las solicitudes
 
 def solicitar_tiempo_acceso(request, user_id, paciente_id):
     if request.method == "POST":
@@ -88,21 +99,24 @@ def permitir_acceso(request, user_id, paciente_id, tiempo_acceso):
     profesional_id = profesional.id
 
     hilo = threading.Thread(target=limpiar_tabla_temporal,args=(paciente_id, profesional_id, tiempo_acceso))
-    hilo.daemon = True
+    #hilo.daemon = True
     hilo.start()
 
-    link = generar_magic_link(paciente_id, tiempo_acceso)
-    profesional = get_object_or_404(User, id=user_id)
-    enviar_magic_link(profesional.email, link)
+    solicitud=Solicitud.objects.get(paciente=paciente_id, profesional_salud=profesional_id, estado=EstadoSolicitud.PENDIENTE.value)
+    solicitud.estado=EstadoSolicitud.ACEPTADA.value
+    solicitud.tiempo_de_vida=int(tiempo_acceso)
+    solicitud.save()
 
-    return render(request, 'registration/login.html')
+    return render(request, 'profesional_salud/principal.html')
 
 def limpiar_tabla_temporal(paciente_id, profesional_id, tiempo_acceso):
     time.sleep(tiempo_acceso * 60)
-    while True:
-        objetos_a_eliminar =InformeTemporal.objects.filter(paciente_id=paciente_id, profesional_salud_id=profesional_id)
-        count, _ = objetos_a_eliminar.delete()
-        time.sleep(tiempo_acceso * 60)
+    objetos_a_eliminar =InformeTemporal.objects.filter(paciente_id=paciente_id, profesional_salud_id=profesional_id)
+    count, _ = objetos_a_eliminar.delete()
+
+    solicitud=Solicitud.objects.get(paciente=paciente_id, profesional_salud=profesional_id, estado=EstadoSolicitud.ACEPTADA.value)
+    solicitud.estado=EstadoSolicitud.VENCIDA.value
+    solicitud.save()
 
 
 def generar_magic_link(paciente_id, tiempo_acceso):
@@ -125,15 +139,9 @@ def enviar_magic_link(profesional_email, link):
 
 
 def eviar_mail_denegado(request, user_id, paciente_id):
-    paciente_encontrado = get_object_or_404(Paciente, id=paciente_id)
-    profesional = get_object_or_404(User, id=user_id)
-    send_mail(
-        'Solicitud de acceso a sus archivos',
-        f'El usuario {paciente_encontrado.user.first_name}.{paciente_encontrado.user.last_name} no permitió acceso a sus archivos.',
-        settings.EMAIL_HOST_USER,
-        [profesional.email],
-        fail_silently=False,
-    )
+    solicitud=Solicitud.objects.get(paciente=paciente_id, profesional_salud=user_id)
+    solicitud.estado=EstadoSolicitud.RECHAZADA.value
+    solicitud.save()
     return render(request, 'profesional_salud/principal.html')
 
 class ProfesionalCrear(CreateView):
@@ -238,3 +246,11 @@ def cargar_llave_publica(llave_publica):
         backend=default_backend()
     )
     return llave_publica_obj
+
+@profesional_salud_required()
+@login_required
+def solicitudes(request):
+    solicitudes = Solicitud.objects.filter(Q(profesional_salud=request.user.profesionalsalud.id) & (
+                Q(estado=EstadoSolicitud.ACEPTADA.value) | Q(estado=EstadoSolicitud.RECHAZADA.value) | Q(
+            estado=EstadoSolicitud.VENCIDA.value)))
+    return render(request, 'profesional_salud/solicitudes_profesional.html', {'solicitudes': solicitudes})

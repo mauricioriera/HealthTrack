@@ -1,0 +1,27 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Solicitudes{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Solicitudes Pendientes</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Médico</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for solicitud in solicitudes %}
+            <tr>
+                <td>{{ solicitud.profesional_salud }}</td>
+                <td>
+                    <a href="{% url 'permitir_acceso' solicitud.profesional_salud.id solicitud.paciente.id %}" class="btn btn-success btn-sm">Aceptar</a>
+                    <a href="{% url 'denegar_acceso' solicitud.profesional_salud.id solicitud.paciente.id %}" class="btn btn-danger btn-sm">Rechazar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

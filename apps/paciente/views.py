@@ -5,10 +5,14 @@ from django.views.generic import CreateView
 from django.contrib.auth.models import Group
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
+
+from apps.informe.models import Solicitud
 from apps.paciente.decorator import paciente_required
 from apps.paciente.forms import Pacienteform, RegistroForm
 from apps.paciente.models import Paciente
 from django.contrib import messages
+
+from apps.profesional_salud.utils import EstadoSolicitud
 
 
 class PacienteCrear(CreateView):
@@ -64,6 +68,13 @@ class PacienteCrear(CreateView):
             return render(request, self.template_name, {'form': form, 'form2': form2})
 @paciente_required()
 @login_required
+#TODO: ELIMINAR LUEGO
 def aceptar_solicitud(request,medico_id, paciente_id):
     context={'medico_id':medico_id, 'paciente_id':paciente_id}
     return render(request,'paciente/aceptar_solicitud.html', context)
+
+@paciente_required()
+@login_required
+def solicitudes_paciente(request):
+    solicitudes = Solicitud.objects.filter(paciente=request.user.paciente.id, estado=EstadoSolicitud.PENDIENTE.value)
+    return render(request, 'paciente/solicitudes_paciente.html', {'solicitudes': solicitudes})

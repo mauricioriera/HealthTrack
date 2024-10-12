@@ -7,5 +7,5 @@ urlpatterns = [
     path('mostrar/<int:archivo_id>', mostrar_archivo_paciente, name='mostrar_archivo_paciente'),
     path('mostrar/profesional/<int:archivo_id>', mostrar_archivo_profesional, name='mostrar_archivo_profesional'),
     path('lista/paciente/<int:paciente_id>/', lista_archivos_paciente, name='lista_archivos_paciente'),
-    path('lista/profesional/<str:token>/<str:tiempo_codificado>', lista_archivos_profesional, name='lista_archivos_profesional'),
+    path('lista/profesional/<int:paciente_id>/', lista_archivos_profesional, name='lista_archivos_profesional'),
  ]

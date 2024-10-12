@@ -14,6 +14,7 @@ from pathlib import Path
 from cryptography.hazmat.primitives import hashes
 from django.urls import reverse_lazy
 from dotenv import load_dotenv
+from django.contrib.messages import constants as message_constants
 
 load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -146,4 +147,7 @@ EMAIL_USE_SSL = False
 EMAIL_HOST_USER = 'piratapruebatesis@hotmail.com'
 EMAIL_HOST_PASSWORD = 'Pirata190387'  # O una contraseña de aplicación si tienes 2FA activado
 DEFAULT_FROM_EMAIL = 'piratapruebatesis@hotmail.com'
+
+MESSAGE_TAGS = {message_constants.ERROR: "danger"}
+
 
