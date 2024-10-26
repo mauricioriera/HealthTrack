@@ -32,7 +32,11 @@
                 <td>{{ paciente.dni }}</td>
                 <td class="text-center">
                     <a href="{% url 'subir_informe' user.profesionalsalud.id paciente.id %}" class="btn btn-success btn-sm me-2">Cargar Informe</a>
-                    <a href= "{% url 'solicitar_acceso' paciente.id %}" class="btn btn-info btn-sm">Solicitar Historial Clinico</a>
+                    {% if paciente.tiene_estudios %}
+                        <a href= "{% url 'solicitar_acceso' paciente.id %}" class="btn btn-info btn-sm">Solicitar Historial Clinico</a>
+                    {% else %}
+                        <a href= "{% url 'solicitar_acceso' paciente.id %}" class="btn btn-info btn-sm disabled">Solicitar Historial Clinico</a>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}

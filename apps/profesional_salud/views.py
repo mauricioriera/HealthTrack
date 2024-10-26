@@ -18,6 +18,7 @@ from cryptography.hazmat.primitives import serialization, hashes
 from django.views.generic import ListView, CreateView
 from apps.informe.forms import AceptarSolicitudForm
 from apps.informe.models import Informe, InformeTemporal, Solicitud
+from apps.informe.views import llave_privada_no_es_valida
 from apps.paciente.models import Paciente
 from apps.profesional_salud.decorator import profesional_salud_required
 import base64
@@ -31,6 +32,19 @@ class principal(ListView):
     template_name = 'profesional_salud/principal.html'
     context_object_name = 'pacientes'
 
+    def get_context_data(self, **kwargs):
+        # Get the default context data
+        context = super().get_context_data(**kwargs)
+
+        # Query the pacientes queryset
+        pacientes = context['pacientes']
+
+        # Loop through each paciente and check if they have any associated files
+        for paciente in pacientes:
+            paciente.tiene_estudios = Informe.objects.filter(paciente_id=paciente.id).exists()
+
+        # You can add more context variables as needed
+        return context
 
 @profesional_salud_required()
 @login_required
@@ -79,7 +93,12 @@ def permitir_acceso(request, user_id, paciente_id, tiempo_acceso):
     profesional = ProfesionalSalud.objects.get(id=user_id)
     paciente = Paciente.objects.get(id=paciente_id)
 
+    informe_a_validar=informes.first()
+    if llave_privada_no_es_valida(informe_a_validar, request.session.get('llave_paciente')):
+        return render(request, 'paciente/error_dar_acceso.html')
+
     for informe in informes:
+
         llave_aes = desencriptar_llave_aes_con_rsa(informe.llave_simetrica_encriptada, request.session.get('llave_paciente'))
         informe_desencriptado = desencriptar_informe_con_llave_aes(llave_aes, informe.archivo)
 
@@ -106,6 +125,7 @@ def permitir_acceso(request, user_id, paciente_id, tiempo_acceso):
     solicitud.estado=EstadoSolicitud.ACEPTADA.value
     solicitud.tiempo_de_vida=int(tiempo_acceso)
     solicitud.save()
+    messages.add_message(request, messages.SUCCESS, 'Solicitud aceptada exitosamente')
 
     return render(request, 'paciente/principal_paciente.html')
 

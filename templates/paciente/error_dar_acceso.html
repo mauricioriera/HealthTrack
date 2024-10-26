@@ -1,0 +1,8 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+  <div class="alert alert-danger" role="alert">
+    Clave privada incorrecta. Por favor, vuelva a intentarlo.
+  </div>
+<a href="{% url 'solicitudes_pendientes'%}" class="btn btn-primary">Volver atrás</a>
+{% endblock %}
