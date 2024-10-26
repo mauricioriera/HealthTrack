@@ -28,10 +28,16 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'principal' %}">Lista Pacientes</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'solicitudes' %}">Solicitudes</a>
+                        </li>
                         {% endif %}
                         {% if request.user.is_authenticated and request.user.paciente.groups.name == "Paciente" %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'lista_archivos_paciente' user.paciente.id %}">Mis Informes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'solicitudes_pendientes' %}">Solicitudes</a>
                         </li>
                         {% endif %}
                     </ul>

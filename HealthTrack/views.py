@@ -18,9 +18,9 @@ class CustomLoginView(LoginView):
         super().form_valid(form)
         user = self.request.user
         if (hasattr(user, 'profesionalsalud') and user.profesionalsalud.groups.name == "Profesional_Salud"):
-            return redirect('principal')
+            return redirect('principal_paciente')
         elif (hasattr(user, 'paciente') and user.paciente.groups.name == "Paciente"):
-            return redirect('lista_archivos_paciente',user.paciente.id)
+            return redirect('principal_paciente')
         else:
             return redirect('logout')
 

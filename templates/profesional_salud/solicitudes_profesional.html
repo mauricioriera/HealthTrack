@@ -18,7 +18,11 @@
                 <td>{{ solicitud.paciente }}</td>
                 <td>{{ solicitud.estado }}</td>
                 <td>
+                    {% if solicitud.estado == "Vencida" %}
+                    <a href="{% url 'lista_archivos_profesional' solicitud.paciente.id %}" class="btn btn-success btn-sm disabled" >Ver informes</a>
+                    {% else %}
                     <a href="{% url 'lista_archivos_profesional' solicitud.paciente.id %}" class="btn btn-success btn-sm">Ver informes</a>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}

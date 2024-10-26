@@ -1,0 +1,14 @@
+{% extends "base/base.html" %}
+{% block title %}Página Inicio{% endblock %}
+{% block content %}
+<div class="text-center">
+    <h1 class="mb-5">Elige una opción</h1>
+    {% if request.user.is_authenticated and request.user.profesionalsalud.groups.name == "Profesional_Salud" %}
+    <a href="{% url 'solicitudes' %}" class="btn btn-primary btn-custom">Ver Solicitudes</a>
+    <a href="{% url 'principal'%}" class="btn btn-success btn-custom">Ver Lista de Pacientes</a>
+    {% else %}
+    <a href="{% url 'solicitudes_pendientes' %}" class="btn btn-primary btn-custom">Ver Solicitudes pendientes</a>
+    <a href="{% url 'lista_archivos_paciente' user.paciente.id %}" class="btn btn-success btn-custom">Ver mis informes</a>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+  <div class="alert alert-danger" role="alert">
+    Clave privada incorrecta. Por favor, vuelva a intentarlo.
+  </div>
+{% if request.user.is_authenticated and request.user.profesionalsalud.groups.name == "Profesional_Salud" %}
+<a href="{% url 'solicitudes' %}" target="file_viewer" class="btn btn-primary">Volver atrás</a>
+{% else %}
+<a href="{% url 'lista_archivos_paciente' user.paciente.id %}" class="btn btn-primary">Volver a intentar</a>
+{% endif %}
+{% endblock %}

@@ -107,7 +107,7 @@ def permitir_acceso(request, user_id, paciente_id, tiempo_acceso):
     solicitud.tiempo_de_vida=int(tiempo_acceso)
     solicitud.save()
 
-    return render(request, 'profesional_salud/principal.html')
+    return render(request, 'paciente/principal_paciente.html')
 
 def limpiar_tabla_temporal(paciente_id, profesional_id, tiempo_acceso):
     time.sleep(tiempo_acceso * 60)

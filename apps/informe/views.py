@@ -7,6 +7,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.signing import TimestampSigner, SignatureExpired, BadSignature
 from django.http import HttpResponse
@@ -55,22 +56,27 @@ def subir_archivo(request, profesional_id, paciente_id):
     return render(request, 'informe/informe_add.html', {'form': form, "paciente": paciente})
 
 
+
 @paciente_required()
 @login_required
 def lista_archivos_paciente(request, paciente_id):
-
     return desencriptar_archivos(request, paciente_id)
 
 def desencriptar_archivos(request,paciente_id):
-    informes = Informe.objects.filter(paciente_id=paciente_id).order_by('-fecha_informe')
 
 
     if request.method == 'POST':
         form= DesencriptarArchivoForm(request.POST)
         if form.is_valid():
-            llave_privada=form.cleaned_data['llave']
-            request.session['llave_privada'] = llave_privada
+            informes = Informe.objects.filter(paciente_id=paciente_id).order_by('-fecha_informe')
+            informe_a_validar = informes.first()
 
+            llave_privada=form.cleaned_data['llave']
+
+            if llave_privada_no_es_valida(informe_a_validar, llave_privada):
+                return render(request, 'informe/error_clave_privada.html')
+
+            request.session['llave_privada'] = llave_privada
             return render(request, 'informe/lista_archivos.html',{'informes': informes})
     else:
         form= DesencriptarArchivoForm()
@@ -98,13 +104,17 @@ def lista_archivos_profesional(request, paciente_id):
 
     tiempo_mili = tiempo_segundos * 1000
 
-    informes = InformeTemporal.objects.filter(paciente_id=paciente_id, profesional_salud_id=profesional_id)
-
-
     if request.method == 'POST':
         form= DesencriptarArchivoForm(request.POST)
         if form.is_valid():
+            informes = InformeTemporal.objects.filter(paciente_id=paciente_id, profesional_salud_id=profesional_id)
+            informe_a_validar = informes.first()
+
             llave_privada=form.cleaned_data['llave']
+
+            if llave_privada_no_es_valida(informe_a_validar, llave_privada):
+                return render(request, 'informe/error_clave_privada.html')
+
             request.session['llave_privada_profesional'] = llave_privada
 
             return render(request, 'informe/lista_archivos.html',{'informes': informes, 'tiempo': tiempo_mili})
@@ -189,3 +199,17 @@ def cargar_llave_privada(clave):
         clave.encode(),
         password=None,
     )
+
+def llave_privada_no_es_valida(informe_a_validar, llave_privada):
+    if informe_a_validar is not None:
+        try:
+            llave_aes = desencriptar_llave_aes_con_rsa(informe_a_validar.llave_simetrica_encriptada, llave_privada)
+            desencriptar_informe_con_llave_aes(llave_aes, informe_a_validar.archivo)
+        except:
+            return True
+    else:
+        try:
+            cargar_llave_privada(llave_privada)
+        except:
+            return True
+    return False

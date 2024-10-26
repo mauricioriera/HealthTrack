@@ -3,7 +3,6 @@
 {% block content %}
 <body>
 <div class="container mt-5">
-    {% if request.user.is_authenticated and request.user.profesionalsalud.groups.name == "Profesional_Salud" %}
         <h2 class="text-center mb-4 table_title">Lista de Pacientes</h2>
 
         <!-- Mostrar mensajes -->
@@ -40,7 +39,6 @@
             </tbody>
         </table>
     </div>
-    {% endif %}
 </div>
 </body>
 {% endblock %}

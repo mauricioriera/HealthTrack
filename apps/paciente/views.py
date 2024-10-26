@@ -78,3 +78,7 @@ def aceptar_solicitud(request,medico_id, paciente_id):
 def solicitudes_paciente(request):
     solicitudes = Solicitud.objects.filter(paciente=request.user.paciente.id, estado=EstadoSolicitud.PENDIENTE.value)
     return render(request, 'paciente/solicitudes_paciente.html', {'solicitudes': solicitudes})
+
+def principal_paciente(request):
+    return render(request, 'paciente/principal_paciente.html')
+
