@@ -51,8 +51,9 @@ class principal(ListView):
 def solicita_acceso(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
     profesional_salud = get_object_or_404(ProfesionalSalud,id=request.user.profesionalsalud.id)
-    solicitud_existente = Solicitud.objects.filter(profesional_salud=profesional_salud.id, paciente=paciente.id,
-                                                   estado=EstadoSolicitud.PENDIENTE.value).exists()
+    solicitud_existente = Solicitud.objects.filter(Q(profesional_salud=profesional_salud.id) & Q(paciente=paciente.id)&
+                                                   Q(estado=EstadoSolicitud.PENDIENTE.value)| Q(estado=EstadoSolicitud.ACEPTADA.value)).exists()
+
 
     if not solicitud_existente:
         Solicitud.objects.create(
@@ -117,10 +118,6 @@ def permitir_acceso(request, user_id, paciente_id, tiempo_acceso):
 
     profesional_id = profesional.id
 
-    hilo = threading.Thread(target=limpiar_tabla_temporal,args=(paciente_id, profesional_id, tiempo_acceso))
-    #hilo.daemon = True
-    hilo.start()
-
     solicitud=Solicitud.objects.get(paciente=paciente_id, profesional_salud=profesional_id, estado=EstadoSolicitud.PENDIENTE.value)
     solicitud.estado=EstadoSolicitud.ACEPTADA.value
     solicitud.tiempo_de_vida=int(tiempo_acceso)
@@ -128,15 +125,6 @@ def permitir_acceso(request, user_id, paciente_id, tiempo_acceso):
     messages.add_message(request, messages.SUCCESS, 'Solicitud aceptada exitosamente')
 
     return render(request, 'paciente/principal_paciente.html')
-
-def limpiar_tabla_temporal(paciente_id, profesional_id, tiempo_acceso):
-    time.sleep(tiempo_acceso * 60)
-    objetos_a_eliminar =InformeTemporal.objects.filter(paciente_id=paciente_id, profesional_salud_id=profesional_id)
-    count, _ = objetos_a_eliminar.delete()
-
-    solicitud=Solicitud.objects.get(paciente=paciente_id, profesional_salud=profesional_id, estado=EstadoSolicitud.ACEPTADA.value)
-    solicitud.estado=EstadoSolicitud.VENCIDA.value
-    solicitud.save()
 
 
 def generar_magic_link(paciente_id, tiempo_acceso):

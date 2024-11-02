@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'apps.informe.apps.InformeConfig',
     'apps.paciente.apps.PacienteConfig',
     'apps.profesional_salud.apps.ProfesionalSaludConfig',
+    'django_apscheduler',
 ]
 
 MIDDLEWARE = [

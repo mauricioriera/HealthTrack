@@ -1,27 +1,51 @@
-import base64
 import os
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 import magic
+from apscheduler.schedulers.background import BackgroundScheduler
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.signing import TimestampSigner, SignatureExpired, BadSignature
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
+from django_apscheduler.jobstores import DjangoJobStore, register_job
 
 from apps.informe.forms import InformeForm, DesencriptarArchivoForm
-from apps.informe.models import Informe, InformeTemporal, Solicitud
+from apps.informe.models import Informe
+from apps.informe.models import InformeTemporal, Solicitud
 from apps.paciente.decorator import paciente_required
 from apps.paciente.models import Paciente
 from apps.profesional_salud.decorator import profesional_salud_required
 from apps.profesional_salud.models import ProfesionalSalud
 from apps.profesional_salud.utils import EstadoSolicitud
 
+def start():
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(limpiar_tabla_temporal, 'interval', minutes=5)
+    scheduler.start()
+
+
+def limpiar_tabla_temporal():
+    print("Scheduler limpiar_tabla_temporal ejecutando...")
+    solicitudes_aceptadas=Solicitud.objects.filter(estado=EstadoSolicitud.ACEPTADA.value)
+
+    for solicitud in solicitudes_aceptadas:
+        tiempo_expiracion = solicitud.fecha_creacion + timedelta(minutes=solicitud.tiempo_de_vida)
+        esta_expirado = timezone.now() > tiempo_expiracion
+        if esta_expirado:
+            solicitud.estado=EstadoSolicitud.VENCIDA.value
+            solicitud.save()
+
+            paciente_id = solicitud.paciente.id
+            profesional_id = solicitud.profesional_salud.id
+            informes_a_eliminar = InformeTemporal.objects.filter(paciente_id=paciente_id,
+                                                                profesional_salud_id=profesional_id)
+            count, _ = informes_a_eliminar.delete()
+
+            print(f"Se eliminaron {count} informes temporales de la solicitud.")
 
 @profesional_salud_required()
 @login_required
