@@ -24,9 +24,8 @@ from apps.profesional_salud.utils import EstadoSolicitud
 
 def start():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(limpiar_tabla_temporal, 'interval', minutes=5)
+    scheduler.add_job(limpiar_tabla_temporal, 'interval', minutes=1)
     scheduler.start()
-
 
 def limpiar_tabla_temporal():
     print("Scheduler limpiar_tabla_temporal ejecutando...")

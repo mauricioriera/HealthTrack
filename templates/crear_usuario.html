@@ -1,0 +1,14 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Crear Usuario{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-center text-center">
+    <div class="container">
+        <div class="d-grid gap-3 col-6 mx-auto">
+            <a href="{% url 'crear_profesional' %}" class="btn btn-primary btn-lg">Crear Medico</a>
+            <a href="{% url 'crear_paciente' %}" class="btn btn-secondary btn-lg">Crear Paciente</a>
+        </div>
+    </div>
+</div>
+{% endblock %}>

@@ -7,6 +7,9 @@ def inicio(request):
     context = {'foo': 'bar'}
     return render(request, 'index.html', context)
 
+def crear_usuario(request):
+    return render(request,'crear_usuario.html')
+
 
 def logout(request):
     do_logout(request)

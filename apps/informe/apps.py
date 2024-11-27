@@ -7,5 +7,3 @@ class InformeConfig(AppConfig):
 
     def ready(self):
         print('ready...')
-        from apps.informe import views
-        views.start()

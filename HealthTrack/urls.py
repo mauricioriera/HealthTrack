@@ -17,13 +17,16 @@ Including another URLconf
 import django.contrib.auth
 from django.contrib import admin
 from django.urls import path, include
-from HealthTrack.views import logout, inicio, CustomLoginView,custom_permission_denied_view
+from HealthTrack.views import logout, inicio, CustomLoginView,custom_permission_denied_view,crear_usuario
+from apps.informe import views
+
 
 handler403 = custom_permission_denied_view
 
 urlpatterns = [
     path('admin/', admin.site.urls, name='admin'),
     path('', inicio, name='inicio'),
+    path('crear_usuario/', crear_usuario,name='crear_usuario'),
     path('accounts/login/', CustomLoginView.as_view(), name= 'login'),
     path('logout/', logout, name='logout'),
     path('profesional/',include('apps.profesional_salud.urls'), name='profesional'),
@@ -31,3 +34,6 @@ urlpatterns = [
     path('paciente/',include('apps.paciente.urls'), name='paciente'),
 
 ]
+
+views.start()
+
