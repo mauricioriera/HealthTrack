@@ -1,15 +1,11 @@
 import os
-import threading
-import time
+
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User, Group
-from django.core.mail import send_mail
-from django.core.signing import TimestampSigner
+from django.contrib.auth.models import Group
 from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
@@ -21,12 +17,12 @@ from apps.informe.models import Informe, InformeTemporal, Solicitud
 from apps.informe.views import llave_privada_no_es_valida
 from apps.paciente.models import Paciente
 from apps.profesional_salud.decorator import profesional_salud_required
-import base64
 from apps.profesional_salud.forms import ProfesionalSaludform, RegistroForm
 from apps.profesional_salud.models import ProfesionalSalud
 from apps.profesional_salud.utils import EstadoSolicitud
 
-
+@profesional_salud_required()
+@login_required
 class principal(ListView):
     model = Paciente
     template_name = 'profesional_salud/principal.html'
@@ -77,17 +73,6 @@ def solicitar_tiempo_acceso(request, user_id, paciente_id):
         form = AceptarSolicitudForm()
     return render(request, "profesional_salud/solicitar_tiempo.html", {"form": form})
 
-
-def enviar_mail_paciente(paciente_email, link_aceptar, username):
-    send_mail(
-        'Solicitud de acceso a sus archivos',
-        f'El médico {username} ha solicitado acceso a tus archivos. Por favor, ingrese al siguiente link: {link_aceptar}',
-        settings.EMAIL_HOST_USER,
-        [paciente_email],
-        fail_silently=False,
-    )
-
-
 def permitir_acceso(request, user_id, paciente_id, tiempo_acceso):
 
     informes = Informe.objects.filter(paciente_id=paciente_id)
@@ -126,27 +111,7 @@ def permitir_acceso(request, user_id, paciente_id, tiempo_acceso):
 
     return render(request, 'paciente/principal_paciente.html')
 
-
-def generar_magic_link(paciente_id, tiempo_acceso):
-    signer = TimestampSigner()
-    token = signer.sign(paciente_id)
-    tiempo_codificado = base64.b64encode(tiempo_acceso.to_bytes(2, byteorder='big'))
-    tiempo_final = tiempo_codificado.decode('utf-8')
-    link = f"{settings.SITE_URL}/informe/lista/profesional/{token}/{tiempo_final}"
-    return link
-
-
-def enviar_magic_link(profesional_email, link):
-    send_mail(
-        'Solicitud de acceso a sus archivos',
-        f'El usuario le dio acceso a sus archivos. Por favor, haga clic en el siguiente enlace para verlos: {link}',
-        settings.EMAIL_HOST_USER,
-        [profesional_email],
-        fail_silently=False,
-    )
-
-
-def eviar_mail_denegado(request, user_id, paciente_id):
+def denegar_acceso(request, user_id, paciente_id):
     solicitud=Solicitud.objects.get(paciente=paciente_id, profesional_salud=user_id)
     solicitud.estado=EstadoSolicitud.RECHAZADA.value
     solicitud.save()
@@ -215,6 +180,7 @@ def desencriptar_llave_aes_con_rsa(llave_simetrica_encriptada,llave_paciente_str
         )
     )
     return llave_aes
+
 def desencriptar_informe_con_llave_aes(llave_aes, archivo):
     iv=archivo[:16]
     datos_desencriptados=archivo[16:]
@@ -229,8 +195,10 @@ def cargar_llave_privada(clave):
         clave.encode(),
         password=None,
     )
+
 def generar_llave_aes():
     return os.urandom(32)
+
 def encriptar_llave_aes_con_rsa(llave_aes,llave_publica):
     llave_encriptada= llave_publica.encrypt(
         llave_aes,
@@ -241,6 +209,7 @@ def encriptar_llave_aes_con_rsa(llave_aes,llave_publica):
         )
     )
     return  llave_encriptada
+
 def encriptar_archivo_con_aes(contenido_archivo,llave_aes):
     iv=os.urandom(16)
     cipher=Cipher(algorithms.AES(llave_aes),modes.CFB(iv),backend=default_backend())

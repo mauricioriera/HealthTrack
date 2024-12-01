@@ -78,8 +78,6 @@ def subir_archivo(request, profesional_id, paciente_id):
         form = InformeForm()
     return render(request, 'informe/informe_add.html', {'form': form, "paciente": paciente})
 
-
-
 @paciente_required()
 @login_required
 def lista_archivos_paciente(request, paciente_id):

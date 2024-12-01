@@ -31,7 +31,7 @@
                 <td>{{ paciente.user.last_name }}</td>
                 <td>{{ paciente.dni }}</td>
                 <td class="text-center">
-                    <a href="{% url 'subir_informe' user.profesionalsalud.id paciente.id %}" class="btn btn-success btn-sm me-2">Cargar Informe</a>
+                    <a href="{% url 'subir_informe' user.profesionalsalud.id paciente.id %}" class="btn btn-success btn-sm">Cargar Informe</a>
                     {% if paciente.tiene_estudios %}
                         <a href= "{% url 'solicitar_acceso' paciente.id %}" class="btn btn-info btn-sm">Solicitar Historial Clinico</a>
                     {% else %}
